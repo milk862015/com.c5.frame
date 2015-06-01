@@ -1,0 +1,25 @@
+{
+	"document_class": "Main",
+	"modules": [
+		{
+			"name": "core"
+		},
+		{
+			"name": "res"
+		},
+		{
+			"name": "gui"
+		},
+		{
+			"name": "game",
+			"path": "."
+		}
+	],
+	"native": {
+		"path_ignore": [
+			"src",
+			"release"
+		]
+	},
+	"egret_version": "1.7.0"
+}
