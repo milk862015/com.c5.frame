@@ -64,4 +64,3 @@ var AssetAdapter = (function () {
     return AssetAdapter;
 })();
 AssetAdapter.prototype.__class__ = "AssetAdapter";
-//# sourceMappingURL=AssetAdapter.js.map

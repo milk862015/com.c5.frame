@@ -45,4 +45,3 @@ var GameResponse = (function (_super) {
     return GameResponse;
 })(egret.EventDispatcher);
 GameResponse.prototype.__class__ = "GameResponse";
-//# sourceMappingURL=GameResponse.js.map

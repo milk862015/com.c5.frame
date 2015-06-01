@@ -12,4 +12,3 @@ var FightConfig = (function () {
     return FightConfig;
 })();
 FightConfig.prototype.__class__ = "FightConfig";
-//# sourceMappingURL=FightConfig.js.map

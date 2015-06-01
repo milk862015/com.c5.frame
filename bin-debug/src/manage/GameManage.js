@@ -21,4 +21,3 @@ var GameManage = (function () {
     return GameManage;
 })();
 GameManage.prototype.__class__ = "GameManage";
-//# sourceMappingURL=GameManage.js.map

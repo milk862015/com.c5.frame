@@ -1,31 +1,29 @@
-//////////////////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (c) 2014-2015, Egret Technology Inc.
-//  All rights reserved.
-//  Redistribution and use in source and binary forms, with or without
-//  modification, are permitted provided that the following conditions are met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above copyright
-//       notice, this list of conditions and the following disclaimer in the
-//       documentation and/or other materials provided with the distribution.
-//     * Neither the name of the Egret nor the
-//       names of its contributors may be used to endorse or promote products
-//       derived from this software without specific prior written permission.
-//
-//  THIS SOFTWARE IS PROVIDED BY EGRET AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
-//  OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-//  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-//  IN NO EVENT SHALL EGRET AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-//  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-//  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;LOSS OF USE, DATA,
-//  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-//  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-//  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-//  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-//////////////////////////////////////////////////////////////////////////////////////
+/**
+ * Copyright (c) 2014,Egret-Labs.org
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Egret-Labs.org nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY EGRET-LABS.ORG AND CONTRIBUTORS "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL EGRET-LABS.ORG AND CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 var egret;
 (function (egret) {
     /**
@@ -44,8 +42,6 @@ var egret;
             _super.call(this);
             this.currentAlpha = NaN;
             this.currentBlendMode = null;
-            egret.Texture.prototype.draw = egret.Texture.prototype._drawForNative;
-            egret.Texture.prototype.dispose = egret.Texture.prototype._disposeForNative;
         }
         var __egretProto__ = NativeRendererContext.prototype;
         __egretProto__._setTextureScaleFactor = function (value) {
@@ -87,7 +83,13 @@ var egret;
          */
         __egretProto__.drawImage = function (texture, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight, repeat) {
             if (repeat === void 0) { repeat = undefined; }
-            texture.draw(egret_native.Graphics, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight, repeat);
+            if (repeat !== undefined) {
+                this.drawRepeatImage(texture, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight, repeat);
+                return;
+            }
+            else {
+                egret_native.Graphics.drawImage(texture._bitmapData, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight);
+            }
             _super.prototype.drawImage.call(this, texture, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight, repeat);
         };
         /**
@@ -166,8 +168,8 @@ var egret;
         __egretProto__.setupFont = function (textField, style) {
             if (style === void 0) { style = null; }
             style = style || {};
-            var properties = textField._TF_Props_;
-            var size = style.size == null ? properties._size : style.size;
+            var properties = textField._properties;
+            var size = style["size"] == null ? properties._size : style["size"];
             var outline;
             if (style.stroke != null) {
                 outline = style.stroke;
@@ -199,7 +201,7 @@ var egret;
             if (style === void 0) { style = null; }
             this.setupFont(textField, style);
             style = style || {};
-            var properties = textField._TF_Props_;
+            var properties = textField._properties;
             var textColor;
             if (style.textColor != null) {
                 textColor = style.textColor;
@@ -264,7 +266,7 @@ var egret_native_graphics;
             egret_native.Graphics.lineTo(x, y + height);
             egret_native.Graphics.lineTo(x, y);
         }, this, arguments));
-        this._checkRect(x, y, width, height);
+        this.checkRect(x, y, width, height);
     }
     egret_native_graphics.drawRect = drawRect;
     function drawCircle(x, y, r) {
@@ -280,10 +282,10 @@ var egret_native_graphics;
         this.commandQueue.push(new Command(function (x, y) {
             egret_native.Graphics.lineTo(x, y);
         }, this, arguments));
-        this._checkPoint(this.lineX, this.lineY);
+        this.checkPoint(this.lineX, this.lineY);
         this.lineX = x;
         this.lineY = y;
-        this._checkPoint(x, y);
+        this.checkPoint(x, y);
     }
     egret_native_graphics.lineTo = lineTo;
     function curveTo(controlX, controlY, anchorX, anchorY) {
@@ -305,7 +307,6 @@ var egret_native_graphics;
         this._maxX = 0;
         this._maxY = 0;
         this._firstCheck = true;
-        this._dirty = true;
     }
     egret_native_graphics.clear = clear;
     function endFill() {

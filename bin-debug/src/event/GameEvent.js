@@ -18,4 +18,3 @@ var GameEvent = (function (_super) {
     return GameEvent;
 })(egret.Event);
 GameEvent.prototype.__class__ = "GameEvent";
-//# sourceMappingURL=GameEvent.js.map

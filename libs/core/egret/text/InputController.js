@@ -1,31 +1,29 @@
-//////////////////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (c) 2014-2015, Egret Technology Inc.
-//  All rights reserved.
-//  Redistribution and use in source and binary forms, with or without
-//  modification, are permitted provided that the following conditions are met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above copyright
-//       notice, this list of conditions and the following disclaimer in the
-//       documentation and/or other materials provided with the distribution.
-//     * Neither the name of the Egret nor the
-//       names of its contributors may be used to endorse or promote products
-//       derived from this software without specific prior written permission.
-//
-//  THIS SOFTWARE IS PROVIDED BY EGRET AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
-//  OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-//  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-//  IN NO EVENT SHALL EGRET AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-//  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-//  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;LOSS OF USE, DATA,
-//  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-//  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-//  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-//  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-//////////////////////////////////////////////////////////////////////////////////////
+/**
+ * Copyright (c) 2014,Egret-Labs.org
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Egret-Labs.org nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY EGRET-LABS.ORG AND CONTRIBUTORS "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL EGRET-LABS.ORG AND CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 var egret;
 (function (egret) {
     /**
@@ -46,7 +44,7 @@ var egret;
         };
         __egretProto__._addStageText = function () {
             if (!this._text._inputEnabled) {
-                this._text._DO_Props_._touchEnabled = true;
+                this._text._touchEnabled = true;
             }
             this.stageText._add();
             this.stageText._addListeners();
@@ -58,7 +56,7 @@ var egret;
         };
         __egretProto__._removeStageText = function () {
             if (!this._text._inputEnabled) {
-                this._text._DO_Props_._touchEnabled = false;
+                this._text._touchEnabled = false;
             }
             this.stageText._remove();
             this.stageText._removeListeners();
@@ -79,19 +77,17 @@ var egret;
             //不再显示竖线，并且输入框显示最开始
             this._isFocus = true;
             this._text._isTyping = true;
-            this._text.dispatchEvent(new egret.FocusEvent(egret.FocusEvent.FOCUS_IN));
         };
         __egretProto__.blurHandler = function (event) {
             //不再显示竖线，并且输入框显示最开始
             this._isFocus = false;
             this._text._isTyping = false;
-            this._text.dispatchEvent(new egret.FocusEvent(egret.FocusEvent.FOCUS_OUT));
         };
         //点中文本
         __egretProto__.onMouseDownHandler = function (event) {
             event.stopPropagation();
             var self = this;
-            if (!this._text._DO_Props_._visible) {
+            if (!this._text._visible) {
                 return;
             }
             if (this._isFocus) {
@@ -99,7 +95,7 @@ var egret;
             }
             this._isFocus = true;
             //强制更新输入框位置
-            this.stageText._show(this._text._TF_Props_._multiline, this._text.size, this._text.width, this._text.height);
+            this.stageText._show(this._text._properties._multiline, this._text.size, this._text.width, this._text.height);
             var point = this._text.localToGlobal();
             this.stageText._initElement(point.x, point.y, self._text._worldTransform.a, self._text._worldTransform.d);
         };
@@ -120,7 +116,7 @@ var egret;
         };
         __egretProto__._updateTransform = function () {
             this._text._updateBaseTransform();
-            if (!this._text._DO_Props_._visible && this.stageText) {
+            if (!this._text._visible && this.stageText) {
                 this._hideInput();
             }
         };
@@ -129,13 +125,13 @@ var egret;
                 this._updateTransform();
                 return;
             }
-            var stage = this._text._DO_Props_._stage;
+            var stage = this._text._stage;
             if (stage == null) {
                 this.stageText._setVisible(false);
             }
             else {
                 var item = this._text;
-                var visible = item._DO_Props_._visible;
+                var visible = item._visible;
                 while (true) {
                     if (!visible) {
                         break;
@@ -144,13 +140,13 @@ var egret;
                     if (item == stage) {
                         break;
                     }
-                    visible = item._DO_Props_._visible;
+                    visible = item._visible;
                 }
                 this.stageText._setVisible(visible);
             }
-            this.stageText._setMultiline(this._text._TF_Props_._multiline);
-            this.stageText._setTextType(this._text._TF_Props_._displayAsPassword ? "password" : "text");
-            this.stageText._setText(this._text._TF_Props_._text);
+            this.stageText._setMultiline(this._text._properties._multiline);
+            this.stageText._setTextType(this._text._properties._displayAsPassword ? "password" : "text");
+            this.stageText._setText(this._text._properties._text);
             //整体修改
             this.stageText._resetStageText();
             this._updateTransform();

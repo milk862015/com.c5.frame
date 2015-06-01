@@ -1,31 +1,29 @@
-//////////////////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (c) 2014-2015, Egret Technology Inc.
-//  All rights reserved.
-//  Redistribution and use in source and binary forms, with or without
-//  modification, are permitted provided that the following conditions are met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above copyright
-//       notice, this list of conditions and the following disclaimer in the
-//       documentation and/or other materials provided with the distribution.
-//     * Neither the name of the Egret nor the
-//       names of its contributors may be used to endorse or promote products
-//       derived from this software without specific prior written permission.
-//
-//  THIS SOFTWARE IS PROVIDED BY EGRET AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
-//  OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-//  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-//  IN NO EVENT SHALL EGRET AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-//  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-//  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;LOSS OF USE, DATA,
-//  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-//  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-//  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-//  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-//////////////////////////////////////////////////////////////////////////////////////
+/**
+ * Copyright (c) 2014,Egret-Labs.org
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Egret-Labs.org nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY EGRET-LABS.ORG AND CONTRIBUTORS "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL EGRET-LABS.ORG AND CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 var egret;
 (function (egret) {
     var gui;
@@ -49,7 +47,94 @@ var egret;
              */
             function UIComponent() {
                 _super.call(this);
-                this._UIC_Props_ = new egret.gui.UIComponentProperties();
+                this._id = null;
+                this._isPopUp = false;
+                this._owner = null;
+                this._updateCompletePendingFlag = false;
+                this._initialized = false;
+                /**
+                 * _initialize()方法被调用过的标志。
+                 */
+                this.initializeCalled = false;
+                this._nestLevel = 0;
+                /**
+                 * 是否已经创建了自身的样式原型链
+                 */
+                this._hasOwnStyleChain = false;
+                /**
+                 * 样式原型链引用
+                 */
+                this._styleProtoChain = null;
+                /**
+                 * 一个性能优化的标志变量。某些子类可以设置为true显式表明自己不含有可设置样式的子项。
+                 */
+                this._hasNoStyleChild = false;
+                this._enabled = true;
+                /**
+                 * 属性提交前组件旧的宽度
+                 */
+                this.oldWidth = NaN;
+                this._width = 0;
+                /**
+                 * 属性提交前组件旧的高度
+                 */
+                this.oldHeight = NaN;
+                this._height = 0;
+                this._minWidth = 0;
+                this._maxWidth = 10000;
+                this._minHeight = 0;
+                this._maxHeight = 10000;
+                this._measuredWidth = 0;
+                this._measuredHeight = 0;
+                /**
+                 * 属性提交前组件旧的X
+                 * @member egret.gui.UIComponent#oldX
+                 */
+                this.oldX = NaN;
+                /**
+                 * 属性提交前组件旧的Y
+                 * @member egret.gui.UIComponent#oldY
+                 */
+                this.oldY = NaN;
+                /**
+                 * @member egret.gui.UIComponent#_invalidatePropertiesFlag
+                 */
+                this._invalidatePropertiesFlag = false;
+                /**
+                 * @member egret.gui.UIComponent#_invalidateSizeFlag
+                 */
+                this._invalidateSizeFlag = false;
+                /**
+                 * 上一次测量的首选宽度
+                 * @member egret.gui.UIComponent#_oldPreferWidth
+                 */
+                this._oldPreferWidth = NaN;
+                /**
+                 * 上一次测量的首选高度
+                 * @member egret.gui.UIComponent#_oldPreferHeight
+                 */
+                this._oldPreferHeight = NaN;
+                this._invalidateDisplayListFlag = false;
+                this._validateNowFlag = false;
+                this._includeInLayout = true;
+                this._left = NaN;
+                this._right = NaN;
+                this._top = NaN;
+                this._bottom = NaN;
+                this._horizontalCenter = NaN;
+                this._verticalCenter = NaN;
+                this._percentWidth = NaN;
+                this._percentHeight = NaN;
+                /**
+                 * 父级布局管理器设置了组件的宽度标志，尺寸设置优先级：自动布局>显式设置>自动测量
+                 * @member egret.gui.UIComponent#_layoutWidthExplicitlySet
+                 */
+                this._layoutWidthExplicitlySet = false;
+                /**
+                 * 父级布局管理器设置了组件的高度标志，尺寸设置优先级：自动布局>显式设置>自动测量
+                 * @member egret.gui.UIComponent#_layoutHeightExplicitlySet
+                 */
+                this._layoutHeightExplicitlySet = false;
                 this.touchEnabled = true;
                 this.addEventListener(egret.Event.ADDED_TO_STAGE, this.onAddedToStage, this);
                 this.addEventListener(egret.Event.ADDED_TO_STAGE, this.checkInvalidateFlag, this);
@@ -66,7 +151,7 @@ var egret;
                 this.removeEventListener(egret.Event.ADDED_TO_STAGE, this.onAddedToStage, this);
                 this._initialize();
                 gui.UIGlobals._initlize(this.stage);
-                if (this._UIC_Props_._nestLevel > 0)
+                if (this._nestLevel > 0)
                     this.checkInvalidateFlag();
             };
             Object.defineProperty(__egretProto__, "id", {
@@ -75,10 +160,10 @@ var egret;
                  * @constant egret.gui.UIComponent#id
                  */
                 get: function () {
-                    return this._UIC_Props_._id;
+                    return this._id;
                 },
                 set: function (value) {
-                    this._UIC_Props_._id = value;
+                    this._id = value;
                 },
                 enumerable: true,
                 configurable: true
@@ -88,10 +173,10 @@ var egret;
                  * @member egret.gui.UIComponent#isPopUp
                  */
                 get: function () {
-                    return this._UIC_Props_._isPopUp;
+                    return this._isPopUp;
                 },
                 set: function (value) {
-                    this._UIC_Props_._isPopUp = value;
+                    this._isPopUp = value;
                 },
                 enumerable: true,
                 configurable: true
@@ -101,7 +186,7 @@ var egret;
                  * @member egret.gui.UIComponent#owner
                  */
                 get: function () {
-                    return this._UIC_Props_._owner ? this._UIC_Props_._owner : this.parent;
+                    return this._owner ? this._owner : this.parent;
                 },
                 enumerable: true,
                 configurable: true
@@ -111,17 +196,17 @@ var egret;
              * @param value {any}
              */
             __egretProto__.ownerChanged = function (value) {
-                this._UIC_Props_._owner = value;
+                this._owner = value;
             };
             Object.defineProperty(__egretProto__, "updateCompletePendingFlag", {
                 /**
                  * @member egret.gui.UIComponent#updateCompletePendingFlag
                  */
                 get: function () {
-                    return this._UIC_Props_._updateCompletePendingFlag;
+                    return this._updateCompletePendingFlag;
                 },
                 set: function (value) {
-                    this._UIC_Props_._updateCompletePendingFlag = value;
+                    this._updateCompletePendingFlag = value;
                 },
                 enumerable: true,
                 configurable: true
@@ -131,12 +216,12 @@ var egret;
                  * @member egret.gui.UIComponent#initialized
                  */
                 get: function () {
-                    return this._UIC_Props_._initialized;
+                    return this._initialized;
                 },
                 set: function (value) {
-                    if (this._UIC_Props_._initialized == value)
+                    if (this._initialized == value)
                         return;
-                    this._UIC_Props_._initialized = value;
+                    this._initialized = value;
                     if (value) {
                         this.childrenCreated();
                         gui.UIEvent.dispatchUIEvent(this, gui.UIEvent.CREATION_COMPLETE);
@@ -150,12 +235,12 @@ var egret;
              * @method egret.gui.UIComponent#_initialize
              */
             __egretProto__._initialize = function () {
-                if (this._UIC_Props_._initializeCalled)
+                if (this.initializeCalled)
                     return;
                 if (gui.UIGlobals.stage) {
                     this.removeEventListener(egret.Event.ADDED_TO_STAGE, this.onAddedToStage, this);
                 }
-                this._UIC_Props_._initializeCalled = true;
+                this.initializeCalled = true;
                 gui.UIEvent.dispatchUIEvent(this, gui.UIEvent.INITIALIZE);
                 this.createChildren();
                 this.invalidateProperties();
@@ -180,13 +265,13 @@ var egret;
                  * @member egret.gui.UIComponent#nestLevel
                  */
                 get: function () {
-                    return this._UIC_Props_._nestLevel;
+                    return this._nestLevel;
                 },
                 set: function (value) {
-                    if (this._UIC_Props_._nestLevel == value)
+                    if (this._nestLevel == value)
                         return;
-                    this._UIC_Props_._nestLevel = value;
-                    if (this._UIC_Props_._nestLevel == 0)
+                    this._nestLevel = value;
+                    if (this._nestLevel == 0)
                         this.addEventListener(egret.Event.ADDED_TO_STAGE, this.checkInvalidateFlag, this);
                     else
                         this.removeEventListener(egret.Event.ADDED_TO_STAGE, this.checkInvalidateFlag, this);
@@ -202,7 +287,7 @@ var egret;
                 for (var i = this.numChildren - 1; i >= 0; i--) {
                     var child = (this.getChildAt(i));
                     if (child && "nestLevel" in child) {
-                        child.nestLevel = this._UIC_Props_._nestLevel + 1;
+                        child.nestLevel = this._nestLevel + 1;
                     }
                 }
             };
@@ -210,7 +295,7 @@ var egret;
              * 获取指定的名称的样式属性值
              */
             __egretProto__.getStyle = function (styleProp) {
-                var chain = this._UIC_Props_._styleProtoChain;
+                var chain = this._styleProtoChain;
                 if (!chain) {
                     return undefined;
                 }
@@ -220,8 +305,8 @@ var egret;
              * 对此组件实例设置样式属性。在此组件上设置的样式会覆盖父级容器的同名样式。推荐在子项较少的组件上使用，尽量避免在全局调用此方法，有可能造成性能问题。
              */
             __egretProto__.setStyle = function (styleProp, newValue) {
-                var chain = this._UIC_Props_._styleProtoChain;
-                if (!this._UIC_Props_._hasOwnStyleChain) {
+                var chain = this._styleProtoChain;
+                if (!this._hasOwnStyleChain) {
                     chain = this._createOwnStyleProtoChain(chain);
                 }
                 chain[styleProp] = newValue;
@@ -234,7 +319,7 @@ var egret;
              * 通知子项列表样式发生改变
              */
             __egretProto__.notifyStyleChangeInChildren = function (styleProp) {
-                if (this._UIC_Props_._hasNoStyleChild) {
+                if (this._hasNoStyleChild) {
                     return;
                 }
                 for (var i = this.numChildren - 1; i >= 0; i--) {
@@ -249,16 +334,16 @@ var egret;
                 }
             };
             __egretProto__._createOwnStyleProtoChain = function (chain) {
-                this._UIC_Props_._hasOwnStyleChain = true;
+                this._hasOwnStyleChain = true;
                 if (UIComponent.prototypeCanSet) {
-                    this._UIC_Props_._styleProtoChain = {};
-                    this._UIC_Props_._styleProtoChain.__proto__ = chain ? chain : UIComponent.emptyStyleChain;
+                    this._styleProtoChain = {};
+                    this._styleProtoChain.__proto__ = chain ? chain : UIComponent.emptyStyleChain;
                 }
                 else {
-                    this._UIC_Props_._styleProtoChain = this.createProtoChain(chain);
+                    this._styleProtoChain = this.createProtoChain(chain);
                 }
-                chain = this._UIC_Props_._styleProtoChain;
-                if (!this._UIC_Props_._hasNoStyleChild) {
+                chain = this._styleProtoChain;
+                if (!this._hasNoStyleChild) {
                     for (var i = this.numChildren - 1; i >= 0; i--) {
                         var child = (this.getChildAt(i));
                         if (child && "regenerateStyleCache" in child) {
@@ -284,10 +369,10 @@ var egret;
              * 清除在此组件实例上设置过的指定样式名。
              */
             __egretProto__.clearStyle = function (styleProp) {
-                if (!this._UIC_Props_._hasOwnStyleChain) {
+                if (!this._hasOwnStyleChain) {
                     return;
                 }
-                var chain = this._UIC_Props_._styleProtoChain;
+                var chain = this._styleProtoChain;
                 delete chain[styleProp];
                 this.styleChanged(styleProp);
                 this.notifyStyleChangeInChildren(styleProp);
@@ -300,11 +385,11 @@ var egret;
                     this.regenerateStyleCacheForIE(parentChain);
                     return;
                 }
-                if (this._UIC_Props_._hasOwnStyleChain) {
-                    this._UIC_Props_._styleProtoChain.__proto__ = parentChain ? parentChain : UIComponent.emptyStyleChain;
+                if (this._hasOwnStyleChain) {
+                    this._styleProtoChain.__proto__ = parentChain ? parentChain : UIComponent.emptyStyleChain;
                 }
-                else if (this._UIC_Props_._styleProtoChain != parentChain) {
-                    this._UIC_Props_._styleProtoChain = parentChain;
+                else if (this._styleProtoChain != parentChain) {
+                    this._styleProtoChain = parentChain;
                     for (var i = this.numChildren - 1; i >= 0; i--) {
                         var child = (this.getChildAt(i));
                         if (child && "regenerateStyleCache" in child) {
@@ -317,21 +402,21 @@ var egret;
              * 兼容IE9，10的写法。
              */
             __egretProto__.regenerateStyleCacheForIE = function (parentChain) {
-                if (this._UIC_Props_._hasOwnStyleChain) {
-                    var chain = this._UIC_Props_._styleProtoChain;
+                if (this._hasOwnStyleChain) {
+                    var chain = this._styleProtoChain;
                     var childChain = this.createProtoChain(parentChain);
                     for (var key in chain) {
                         if (chain.hasOwnProperty(key)) {
                             childChain[key] = chain[key];
                         }
                     }
-                    this._UIC_Props_._styleProtoChain = childChain;
+                    this._styleProtoChain = childChain;
                     parentChain = childChain;
                 }
                 else {
-                    this._UIC_Props_._styleProtoChain = parentChain;
+                    this._styleProtoChain = parentChain;
                 }
-                if (!this._UIC_Props_._hasNoStyleChild) {
+                if (!this._hasNoStyleChild) {
                     for (var i = this.numChildren - 1; i >= 0; i--) {
                         var child = this.getChildAt(i);
                         if (child && "regenerateStyleCacheForIE" in child) {
@@ -433,11 +518,11 @@ var egret;
                     return;
                 }
                 if ("nestLevel" in child) {
-                    child.nestLevel = this._UIC_Props_._nestLevel + 1;
+                    child.nestLevel = this._nestLevel + 1;
                 }
                 if ("styleChanged" in child) {
-                    var chain = this._UIC_Props_._styleProtoChain;
-                    if (chain || (child._UIC_Props_ && child._UIC_Props_._styleProtoChain)) {
+                    var chain = this._styleProtoChain;
+                    if (chain || child["_styleProtoChain"]) {
                         child["regenerateStyleCache"](chain);
                         child["styleChanged"](null);
                         child["notifyStyleChangeInChildren"](null);
@@ -495,18 +580,18 @@ var egret;
                 if (event === void 0) { event = null; }
                 if (!gui.UIGlobals._layoutManager)
                     return;
-                if (this._UIC_Props_._invalidatePropertiesFlag) {
+                if (this._invalidatePropertiesFlag) {
                     gui.UIGlobals._layoutManager.invalidateProperties(this);
                 }
-                if (this._UIC_Props_._invalidateSizeFlag) {
+                if (this._invalidateSizeFlag) {
                     gui.UIGlobals._layoutManager.invalidateSize(this);
                 }
-                if (this._UIC_Props_._invalidateDisplayListFlag) {
+                if (this._invalidateDisplayListFlag) {
                     gui.UIGlobals._layoutManager.invalidateDisplayList(this);
                 }
-                if (this._UIC_Props_._validateNowFlag) {
+                if (this._validateNowFlag) {
                     gui.UIGlobals._layoutManager.validateClient(this);
-                    this._UIC_Props_._validateNowFlag = false;
+                    this._validateNowFlag = false;
                 }
             };
             Object.defineProperty(__egretProto__, "enabled", {
@@ -514,10 +599,10 @@ var egret;
                  * @member egret.gui.UIComponent#enabled
                  */
                 get: function () {
-                    return this._UIC_Props_._enabled;
+                    return this._enabled;
                 },
                 set: function (value) {
-                    this._UIC_Props_._enabled = value;
+                    this._enabled = value;
                 },
                 enumerable: true,
                 configurable: true
@@ -527,7 +612,7 @@ var egret;
                  * @member egret.gui.UIComponent#width
                  */
                 get: function () {
-                    return this._UIC_Props_._width;
+                    return this._width;
                 },
                 /**
                  * 组件宽度,默认值为NaN,设置为NaN将使用组件的measure()方法自动计算尺寸
@@ -539,13 +624,13 @@ var egret;
                 configurable: true
             });
             __egretProto__._setWidth = function (value) {
-                if (this._UIC_Props_._width == value && this._DO_Props_._explicitWidth == value)
+                if (this._width == value && this._explicitWidth == value)
                     return;
                 _super.prototype._setWidth.call(this, value);
                 if (isNaN(value))
                     this.invalidateSize();
                 else
-                    this._UIC_Props_._width = value;
+                    this._width = value;
                 this.invalidateProperties();
                 this.invalidateDisplayList();
                 this.invalidateParentSizeAndDisplayList();
@@ -555,7 +640,7 @@ var egret;
                  * @member egret.gui.UIComponent#height
                  */
                 get: function () {
-                    return this._UIC_Props_._height;
+                    return this._height;
                 },
                 /**
                  * 组件高度,默认值为NaN,设置为NaN将使用组件的measure()方法自动计算尺寸
@@ -567,13 +652,13 @@ var egret;
                 configurable: true
             });
             __egretProto__._setHeight = function (value) {
-                if (this._UIC_Props_._height == value && this._DO_Props_._explicitHeight == value)
+                if (this._height == value && this._explicitHeight == value)
                     return;
                 _super.prototype._setHeight.call(this, value);
                 if (isNaN(value))
                     this.invalidateSize();
                 else
-                    this._UIC_Props_._height = value;
+                    this._height = value;
                 this.invalidateProperties();
                 this.invalidateDisplayList();
                 this.invalidateParentSizeAndDisplayList();
@@ -583,7 +668,7 @@ var egret;
                  * @member egret.gui.UIComponent#scaleX
                  */
                 get: function () {
-                    return this._DO_Props_._scaleX;
+                    return this._scaleX;
                 },
                 /**
                  * @inheritDoc
@@ -595,9 +680,9 @@ var egret;
                 configurable: true
             });
             __egretProto__._setScaleX = function (value) {
-                if (this._DO_Props_._scaleX == value)
+                if (this._scaleX == value)
                     return;
-                this._DO_Props_._scaleX = value;
+                this._scaleX = value;
                 this.invalidateParentSizeAndDisplayList();
             };
             Object.defineProperty(__egretProto__, "scaleY", {
@@ -605,7 +690,7 @@ var egret;
                  * @member egret.gui.UIComponent#scaleY
                  */
                 get: function () {
-                    return this._DO_Props_._scaleY;
+                    return this._scaleY;
                 },
                 /**
                  * @inheritDoc
@@ -617,9 +702,9 @@ var egret;
                 configurable: true
             });
             __egretProto__._setScaleY = function (value) {
-                if (this._DO_Props_._scaleY == value)
+                if (this._scaleY == value)
                     return;
-                this._DO_Props_._scaleY = value;
+                this._scaleY = value;
                 this.invalidateParentSizeAndDisplayList();
             };
             Object.defineProperty(__egretProto__, "minWidth", {
@@ -627,12 +712,12 @@ var egret;
                  * @member egret.gui.UIComponent#minWidth
                  */
                 get: function () {
-                    return this._UIC_Props_._minWidth;
+                    return this._minWidth;
                 },
                 set: function (value) {
-                    if (this._UIC_Props_._minWidth == value)
+                    if (this._minWidth == value)
                         return;
-                    this._UIC_Props_._minWidth = value;
+                    this._minWidth = value;
                     this.invalidateSize();
                 },
                 enumerable: true,
@@ -643,31 +728,31 @@ var egret;
                  * @member egret.gui.UIComponent#maxWidth
                  */
                 get: function () {
-                    return this._UIC_Props_._maxWidth;
+                    return this._maxWidth;
                 },
                 set: function (value) {
-                    if (this._UIC_Props_._maxWidth == value)
+                    if (this._maxWidth == value)
                         return;
-                    this._UIC_Props_._maxWidth = value;
+                    this._maxWidth = value;
                     this.invalidateSize();
                 },
                 enumerable: true,
                 configurable: true
             });
             __egretProto__._getMaxWidth = function () {
-                return this._UIC_Props_._maxWidth;
+                return this._maxWidth;
             };
             Object.defineProperty(__egretProto__, "minHeight", {
                 /**
                  * @member egret.gui.UIComponent#minHeight
                  */
                 get: function () {
-                    return this._UIC_Props_._minHeight;
+                    return this._minHeight;
                 },
                 set: function (value) {
-                    if (this._UIC_Props_._minHeight == value)
+                    if (this._minHeight == value)
                         return;
-                    this._UIC_Props_._minHeight = value;
+                    this._minHeight = value;
                     this.invalidateSize();
                 },
                 enumerable: true,
@@ -678,12 +763,12 @@ var egret;
                  * @member egret.gui.UIComponent#maxHeight
                  */
                 get: function () {
-                    return this._UIC_Props_._maxHeight;
+                    return this._maxHeight;
                 },
                 set: function (value) {
-                    if (this._UIC_Props_._maxHeight == value)
+                    if (this._maxHeight == value)
                         return;
-                    this._UIC_Props_._maxHeight = value;
+                    this._maxHeight = value;
                     this.invalidateSize();
                 },
                 enumerable: true,
@@ -695,10 +780,10 @@ var egret;
                  * @member egret.gui.UIComponent#measuredWidth
                  */
                 get: function () {
-                    return this._UIC_Props_._measuredWidth;
+                    return this._measuredWidth;
                 },
                 set: function (value) {
-                    this._UIC_Props_._measuredWidth = value;
+                    this._measuredWidth = value;
                 },
                 enumerable: true,
                 configurable: true
@@ -709,10 +794,10 @@ var egret;
                  * @member egret.gui.UIComponent#measuredHeight
                  */
                 get: function () {
-                    return this._UIC_Props_._measuredHeight;
+                    return this._measuredHeight;
                 },
                 set: function (value) {
-                    this._UIC_Props_._measuredHeight = value;
+                    this._measuredHeight = value;
                 },
                 enumerable: true,
                 configurable: true
@@ -724,12 +809,12 @@ var egret;
              */
             __egretProto__.setActualSize = function (w, h) {
                 var change = false;
-                if (this._UIC_Props_._width != w) {
-                    this._UIC_Props_._width = w;
+                if (this._width != w) {
+                    this._width = w;
                     change = true;
                 }
-                if (this._UIC_Props_._height != h) {
-                    this._UIC_Props_._height = h;
+                if (this._height != h) {
+                    this._height = h;
                     change = true;
                 }
                 if (change) {
@@ -742,17 +827,17 @@ var egret;
                  * @constant egret.gui.UIComponent#x
                  */
                 get: function () {
-                    return this._DO_Props_._x;
+                    return this._x;
                 },
                 /**
                  * @inheritDoc
                  */
                 set: function (value) {
-                    if (this._DO_Props_._x == value)
+                    if (this._x == value)
                         return;
                     this._setX(value);
                     this.invalidateProperties();
-                    if (this._UIC_Props_._includeInLayout && this.parent && this.parent instanceof UIComponent)
+                    if (this._includeInLayout && this.parent && this.parent instanceof UIComponent)
                         (this.parent)._childXYChanged();
                 },
                 enumerable: true,
@@ -763,17 +848,17 @@ var egret;
                  * @constant egret.gui.UIComponent#y
                  */
                 get: function () {
-                    return this._DO_Props_._y;
+                    return this._y;
                 },
                 /**
                  * @inheritDoc
                  */
                 set: function (value) {
-                    if (this._DO_Props_._y == value)
+                    if (this._y == value)
                         return;
                     this._setY(value);
                     this.invalidateProperties();
-                    if (this._UIC_Props_._includeInLayout && this.parent && this.parent instanceof UIComponent)
+                    if (this._includeInLayout && this.parent && this.parent instanceof UIComponent)
                         (this.parent)._childXYChanged();
                 },
                 enumerable: true,
@@ -783,8 +868,8 @@ var egret;
              * @method egret.gui.UIComponent#invalidateProperties
              */
             __egretProto__.invalidateProperties = function () {
-                if (!this._UIC_Props_._invalidatePropertiesFlag) {
-                    this._UIC_Props_._invalidatePropertiesFlag = true;
+                if (!this._invalidatePropertiesFlag) {
+                    this._invalidatePropertiesFlag = true;
                     if (this.parent && gui.UIGlobals._layoutManager)
                         gui.UIGlobals._layoutManager.invalidateProperties(this);
                 }
@@ -793,17 +878,17 @@ var egret;
              * @method egret.gui.UIComponent#validateProperties
              */
             __egretProto__.validateProperties = function () {
-                if (this._UIC_Props_._invalidatePropertiesFlag) {
+                if (this._invalidatePropertiesFlag) {
                     this.commitProperties();
-                    this._UIC_Props_._invalidatePropertiesFlag = false;
+                    this._invalidatePropertiesFlag = false;
                 }
             };
             /**
              * @method egret.gui.UIComponent#invalidateSize
              */
             __egretProto__.invalidateSize = function () {
-                if (!this._UIC_Props_._invalidateSizeFlag) {
-                    this._UIC_Props_._invalidateSizeFlag = true;
+                if (!this._invalidateSizeFlag) {
+                    this._invalidateSizeFlag = true;
                     if (this.parent && gui.UIGlobals._layoutManager)
                         gui.UIGlobals._layoutManager.invalidateSize(this);
                 }
@@ -821,13 +906,13 @@ var egret;
                             child.validateSize(true);
                     }
                 }
-                if (this._UIC_Props_._invalidateSizeFlag) {
+                if (this._invalidateSizeFlag) {
                     var changed = this.measureSizes();
                     if (changed) {
                         this.invalidateDisplayList();
                         this.invalidateParentSizeAndDisplayList();
                     }
-                    this._UIC_Props_._invalidateSizeFlag = false;
+                    this._invalidateSizeFlag = false;
                 }
             };
             /**
@@ -835,7 +920,7 @@ var egret;
              */
             __egretProto__.measureSizes = function () {
                 var changed = false;
-                if (!this._UIC_Props_._invalidateSizeFlag)
+                if (!this._invalidateSizeFlag)
                     return changed;
                 if (!this.canSkipMeasurement()) {
                     this.measure();
@@ -852,16 +937,16 @@ var egret;
                         this.measuredHeight = this.maxHeight;
                     }
                 }
-                if (isNaN(this._UIC_Props_._oldPreferWidth)) {
-                    this._UIC_Props_._oldPreferWidth = this.preferredWidth;
-                    this._UIC_Props_._oldPreferHeight = this.preferredHeight;
+                if (isNaN(this._oldPreferWidth)) {
+                    this._oldPreferWidth = this.preferredWidth;
+                    this._oldPreferHeight = this.preferredHeight;
                     changed = true;
                 }
                 else {
-                    if (this.preferredWidth != this._UIC_Props_._oldPreferWidth || this.preferredHeight != this._UIC_Props_._oldPreferHeight)
+                    if (this.preferredWidth != this._oldPreferWidth || this.preferredHeight != this._oldPreferHeight)
                         changed = true;
-                    this._UIC_Props_._oldPreferWidth = this.preferredWidth;
-                    this._UIC_Props_._oldPreferHeight = this.preferredHeight;
+                    this._oldPreferWidth = this.preferredWidth;
+                    this._oldPreferHeight = this.preferredHeight;
                 }
                 return changed;
             };
@@ -869,8 +954,8 @@ var egret;
              * @method egret.gui.UIComponent#invalidateDisplayList
              */
             __egretProto__.invalidateDisplayList = function () {
-                if (!this._UIC_Props_._invalidateDisplayListFlag) {
-                    this._UIC_Props_._invalidateDisplayListFlag = true;
+                if (!this._invalidateDisplayListFlag) {
+                    this._invalidateDisplayListFlag = true;
                     if (this.parent && gui.UIGlobals._layoutManager)
                         gui.UIGlobals._layoutManager.invalidateDisplayList(this);
                     this._setSizeDirty();
@@ -880,23 +965,23 @@ var egret;
              * @method egret.gui.UIComponent#validateDisplayList
              */
             __egretProto__.validateDisplayList = function () {
-                if (this._UIC_Props_._invalidateDisplayListFlag) {
+                if (this._invalidateDisplayListFlag) {
                     var unscaledWidth = 0;
                     var unscaledHeight = 0;
-                    if (this._UIC_Props_._layoutWidthExplicitlySet) {
-                        unscaledWidth = this._UIC_Props_._width;
+                    if (this._layoutWidthExplicitlySet) {
+                        unscaledWidth = this._width;
                     }
                     else if (!isNaN(this.explicitWidth)) {
-                        unscaledWidth = this._DO_Props_._explicitWidth;
+                        unscaledWidth = this._explicitWidth;
                     }
                     else {
                         unscaledWidth = this.measuredWidth;
                     }
-                    if (this._UIC_Props_._layoutHeightExplicitlySet) {
-                        unscaledHeight = this._UIC_Props_._height;
+                    if (this._layoutHeightExplicitlySet) {
+                        unscaledHeight = this._height;
                     }
                     else if (!isNaN(this.explicitHeight)) {
-                        unscaledHeight = this._DO_Props_._explicitHeight;
+                        unscaledHeight = this._explicitHeight;
                     }
                     else {
                         unscaledHeight = this.measuredHeight;
@@ -907,7 +992,7 @@ var egret;
                         unscaledHeight = 0;
                     this.setActualSize(unscaledWidth, unscaledHeight);
                     this.updateDisplayList(unscaledWidth, unscaledHeight);
-                    this._UIC_Props_._invalidateDisplayListFlag = false;
+                    this._invalidateDisplayListFlag = false;
                 }
             };
             /**
@@ -916,17 +1001,17 @@ var egret;
              */
             __egretProto__.validateNow = function (skipDisplayList) {
                 if (skipDisplayList === void 0) { skipDisplayList = false; }
-                if (!this._UIC_Props_._validateNowFlag && gui.UIGlobals._layoutManager != null)
+                if (!this._validateNowFlag && gui.UIGlobals._layoutManager != null)
                     gui.UIGlobals._layoutManager.validateClient(this, skipDisplayList);
                 else
-                    this._UIC_Props_._validateNowFlag = true;
+                    this._validateNowFlag = true;
             };
             /**
              * 标记父级容器的尺寸和显示列表为失效
              * @method egret.gui.UIComponent#invalidateParentSizeAndDisplayList
              */
             __egretProto__.invalidateParentSizeAndDisplayList = function () {
-                if (!this.parent || !this._UIC_Props_._includeInLayout || !("invalidateSize" in this.parent))
+                if (!this.parent || !this._includeInLayout || !("invalidateSize" in this.parent))
                     return;
                 var p = (this.parent);
                 p.invalidateSize();
@@ -944,16 +1029,16 @@ var egret;
              * 是否可以跳过测量尺寸阶段,返回true则不执行measure()方法
              */
             __egretProto__.canSkipMeasurement = function () {
-                return !isNaN(this._DO_Props_._explicitWidth) && !isNaN(this._DO_Props_._explicitHeight);
+                return !isNaN(this._explicitWidth) && !isNaN(this._explicitHeight);
             };
             /**
              * 提交属性，子类在调用完invalidateProperties()方法后，应覆盖此方法以应用属性
              */
             __egretProto__.commitProperties = function () {
-                if (this._UIC_Props_._oldWidth != this._UIC_Props_._width || this._UIC_Props_._oldHeight != this._UIC_Props_._height) {
+                if (this.oldWidth != this._width || this.oldHeight != this._height) {
                     this.dispatchResizeEvent();
                 }
-                if (this._UIC_Props_._oldX != this.x || this._UIC_Props_._oldY != this.y) {
+                if (this.oldX != this.x || this.oldY != this.y) {
                     this.dispatchMoveEvent();
                 }
             };
@@ -962,18 +1047,18 @@ var egret;
              * @method egret.gui.UIComponent#measure
              */
             __egretProto__.measure = function () {
-                this._UIC_Props_._measuredHeight = 0;
-                this._UIC_Props_._measuredWidth = 0;
+                this._measuredHeight = 0;
+                this._measuredWidth = 0;
             };
             /**
              *  抛出移动事件
              */
             __egretProto__.dispatchMoveEvent = function () {
                 if (this.hasEventListener(gui.MoveEvent.MOVE)) {
-                    gui.MoveEvent.dispatchMoveEvent(this, this._UIC_Props_._oldX, this._UIC_Props_._oldY);
+                    gui.MoveEvent.dispatchMoveEvent(this, this.oldX, this.oldY);
                 }
-                this._UIC_Props_._oldX = this.x;
-                this._UIC_Props_._oldY = this.y;
+                this.oldX = this.x;
+                this.oldY = this.y;
             };
             /**
              * 子项的xy位置发生改变
@@ -985,24 +1070,24 @@ var egret;
              */
             __egretProto__.dispatchResizeEvent = function () {
                 if (this.hasEventListener(gui.ResizeEvent.RESIZE)) {
-                    gui.ResizeEvent.dispatchResizeEvent(this, this._UIC_Props_._oldWidth, this._UIC_Props_._oldHeight);
+                    gui.ResizeEvent.dispatchResizeEvent(this, this.oldWidth, this.oldHeight);
                 }
-                this._UIC_Props_._oldWidth = this._UIC_Props_._width;
-                this._UIC_Props_._oldHeight = this._UIC_Props_._height;
+                this.oldWidth = this._width;
+                this.oldHeight = this._height;
             };
             Object.defineProperty(__egretProto__, "includeInLayout", {
                 /**
                  * @member egret.gui.UIComponent#includeInLayout
                  */
                 get: function () {
-                    return this._UIC_Props_._includeInLayout;
+                    return this._includeInLayout;
                 },
                 set: function (value) {
-                    if (this._UIC_Props_._includeInLayout == value)
+                    if (this._includeInLayout == value)
                         return;
-                    this._UIC_Props_._includeInLayout = true;
+                    this._includeInLayout = true;
                     this.invalidateParentSizeAndDisplayList();
-                    this._UIC_Props_._includeInLayout = value;
+                    this._includeInLayout = value;
                 },
                 enumerable: true,
                 configurable: true
@@ -1012,12 +1097,12 @@ var egret;
                  * @member egret.gui.UIComponent#left
                  */
                 get: function () {
-                    return this._UIC_Props_._left;
+                    return this._left;
                 },
                 set: function (value) {
-                    if (this._UIC_Props_._left == value)
+                    if (this._left == value)
                         return;
-                    this._UIC_Props_._left = value;
+                    this._left = value;
                     this.invalidateParentSizeAndDisplayList();
                 },
                 enumerable: true,
@@ -1028,12 +1113,12 @@ var egret;
                  * @member egret.gui.UIComponent#right
                  */
                 get: function () {
-                    return this._UIC_Props_._right;
+                    return this._right;
                 },
                 set: function (value) {
-                    if (this._UIC_Props_._right == value)
+                    if (this._right == value)
                         return;
-                    this._UIC_Props_._right = value;
+                    this._right = value;
                     this.invalidateParentSizeAndDisplayList();
                 },
                 enumerable: true,
@@ -1044,12 +1129,12 @@ var egret;
                  * @member egret.gui.UIComponent#top
                  */
                 get: function () {
-                    return this._UIC_Props_._top;
+                    return this._top;
                 },
                 set: function (value) {
-                    if (this._UIC_Props_._top == value)
+                    if (this._top == value)
                         return;
-                    this._UIC_Props_._top = value;
+                    this._top = value;
                     this.invalidateParentSizeAndDisplayList();
                 },
                 enumerable: true,
@@ -1060,12 +1145,12 @@ var egret;
                  * @member egret.gui.UIComponent#bottom
                  */
                 get: function () {
-                    return this._UIC_Props_._bottom;
+                    return this._bottom;
                 },
                 set: function (value) {
-                    if (this._UIC_Props_._bottom == value)
+                    if (this._bottom == value)
                         return;
-                    this._UIC_Props_._bottom = value;
+                    this._bottom = value;
                     this.invalidateParentSizeAndDisplayList();
                 },
                 enumerable: true,
@@ -1076,12 +1161,12 @@ var egret;
                  * @member egret.gui.UIComponent#horizontalCenter
                  */
                 get: function () {
-                    return this._UIC_Props_._horizontalCenter;
+                    return this._horizontalCenter;
                 },
                 set: function (value) {
-                    if (this._UIC_Props_._horizontalCenter == value)
+                    if (this._horizontalCenter == value)
                         return;
-                    this._UIC_Props_._horizontalCenter = value;
+                    this._horizontalCenter = value;
                     this.invalidateParentSizeAndDisplayList();
                 },
                 enumerable: true,
@@ -1092,12 +1177,12 @@ var egret;
                  * @member egret.gui.UIComponent#verticalCenter
                  */
                 get: function () {
-                    return this._UIC_Props_._verticalCenter;
+                    return this._verticalCenter;
                 },
                 set: function (value) {
-                    if (this._UIC_Props_._verticalCenter == value)
+                    if (this._verticalCenter == value)
                         return;
-                    this._UIC_Props_._verticalCenter = value;
+                    this._verticalCenter = value;
                     this.invalidateParentSizeAndDisplayList();
                 },
                 enumerable: true,
@@ -1108,12 +1193,12 @@ var egret;
                  * @member egret.gui.UIComponent#percentWidth
                  */
                 get: function () {
-                    return this._UIC_Props_._percentWidth;
+                    return this._percentWidth;
                 },
                 set: function (value) {
-                    if (this._UIC_Props_._percentWidth == value)
+                    if (this._percentWidth == value)
                         return;
-                    this._UIC_Props_._percentWidth = value;
+                    this._percentWidth = value;
                     this.invalidateParentSizeAndDisplayList();
                 },
                 enumerable: true,
@@ -1124,12 +1209,12 @@ var egret;
                  * @member egret.gui.UIComponent#percentHeight
                  */
                 get: function () {
-                    return this._UIC_Props_._percentHeight;
+                    return this._percentHeight;
                 },
                 set: function (value) {
-                    if (this._UIC_Props_._percentHeight == value)
+                    if (this._percentHeight == value)
                         return;
-                    this._UIC_Props_._percentHeight = value;
+                    this._percentHeight = value;
                     this.invalidateParentSizeAndDisplayList();
                 },
                 enumerable: true,
@@ -1142,20 +1227,20 @@ var egret;
              */
             __egretProto__.setLayoutBoundsSize = function (layoutWidth, layoutHeight) {
                 if (isNaN(layoutWidth)) {
-                    this._UIC_Props_._layoutWidthExplicitlySet = false;
+                    this._layoutWidthExplicitlySet = false;
                     layoutWidth = this.preferredWidth;
                 }
                 else {
-                    this._UIC_Props_._layoutWidthExplicitlySet = true;
+                    this._layoutWidthExplicitlySet = true;
                 }
                 if (isNaN(layoutHeight)) {
-                    this._UIC_Props_._layoutHeightExplicitlySet = false;
+                    this._layoutHeightExplicitlySet = false;
                     layoutHeight = this.preferredHeight;
                 }
                 else {
-                    this._UIC_Props_._layoutHeightExplicitlySet = true;
+                    this._layoutHeightExplicitlySet = true;
                 }
-                this.setActualSize(layoutWidth / this._DO_Props_._scaleX, layoutHeight / this._DO_Props_._scaleY);
+                this.setActualSize(layoutWidth / this._scaleX, layoutHeight / this._scaleY);
             };
             /**
              * @method egret.gui.UIComponent#setLayoutBoundsPosition
@@ -1163,18 +1248,18 @@ var egret;
              * @param y {number}
              */
             __egretProto__.setLayoutBoundsPosition = function (x, y) {
-                if (this._DO_Props_._scaleX < 0) {
+                if (this._scaleX < 0) {
                     x += this.layoutBoundsWidth;
                 }
-                if (this._DO_Props_._scaleY < 0) {
+                if (this._scaleY < 0) {
                     y += this.layoutBoundsHeight;
                 }
                 var changed = false;
-                if (this._DO_Props_._x != x) {
+                if (this._x != x) {
                     this._setX(x);
                     changed = true;
                 }
-                if (this._DO_Props_._y != y) {
+                if (this._y != y) {
                     this._setY(y);
                     changed = true;
                 }
@@ -1187,8 +1272,8 @@ var egret;
                  * @member egret.gui.UIComponent#preferredWidth
                  */
                 get: function () {
-                    var w = this._DO_Props_._hasWidthSet ? this._DO_Props_._explicitWidth : this._UIC_Props_._measuredWidth;
-                    var scaleX = this._DO_Props_._scaleX;
+                    var w = this._hasWidthSet ? this._explicitWidth : this._measuredWidth;
+                    var scaleX = this._scaleX;
                     if (scaleX < 0) {
                         scaleX = -scaleX;
                     }
@@ -1202,8 +1287,8 @@ var egret;
                  * @member egret.gui.UIComponent#preferredHeight
                  */
                 get: function () {
-                    var h = this._DO_Props_._hasHeightSet ? this._DO_Props_._explicitHeight : this._UIC_Props_._measuredHeight;
-                    var scaleY = this._DO_Props_._scaleY;
+                    var h = this._hasHeightSet ? this._explicitHeight : this._measuredHeight;
+                    var scaleY = this._scaleY;
                     if (scaleY < 0) {
                         scaleY = -scaleY;
                     }
@@ -1217,11 +1302,11 @@ var egret;
                  * @member egret.gui.UIComponent#preferredX
                  */
                 get: function () {
-                    if (this._DO_Props_._scaleX >= 0) {
-                        return this._DO_Props_._x;
+                    if (this._scaleX >= 0) {
+                        return this._x;
                     }
                     var w = this.preferredWidth;
-                    return this._DO_Props_._x - w;
+                    return this._x - w;
                 },
                 enumerable: true,
                 configurable: true
@@ -1231,11 +1316,11 @@ var egret;
                  * @member egret.gui.UIComponent#preferredY
                  */
                 get: function () {
-                    if (this._DO_Props_._scaleY >= 0) {
-                        return this._DO_Props_._y;
+                    if (this._scaleY >= 0) {
+                        return this._y;
                     }
                     var h = this.preferredHeight;
-                    return this._DO_Props_._y - h;
+                    return this._y - h;
                 },
                 enumerable: true,
                 configurable: true
@@ -1245,11 +1330,11 @@ var egret;
                  * @member egret.gui.UIComponent#layoutBoundsX
                  */
                 get: function () {
-                    if (this._DO_Props_._scaleX >= 0) {
-                        return this._DO_Props_._x;
+                    if (this._scaleX >= 0) {
+                        return this._x;
                     }
                     var w = this.layoutBoundsWidth;
-                    return this._DO_Props_._x - w;
+                    return this._x - w;
                 },
                 enumerable: true,
                 configurable: true
@@ -1259,11 +1344,11 @@ var egret;
                  * @member egret.gui.UIComponent#layoutBoundsY
                  */
                 get: function () {
-                    if (this._DO_Props_._scaleY >= 0) {
-                        return this._DO_Props_._y;
+                    if (this._scaleY >= 0) {
+                        return this._y;
                     }
                     var h = this.layoutBoundsHeight;
-                    return this._DO_Props_._y - h;
+                    return this._y - h;
                 },
                 enumerable: true,
                 configurable: true
@@ -1274,16 +1359,16 @@ var egret;
                  */
                 get: function () {
                     var w = 0;
-                    if (this._UIC_Props_._layoutWidthExplicitlySet) {
-                        w = this._UIC_Props_._width;
+                    if (this._layoutWidthExplicitlySet) {
+                        w = this._width;
                     }
-                    else if (this._DO_Props_._hasWidthSet) {
-                        w = this._DO_Props_._explicitWidth;
+                    else if (this._hasWidthSet) {
+                        w = this._explicitWidth;
                     }
                     else {
-                        w = this._UIC_Props_._measuredWidth;
+                        w = this._measuredWidth;
                     }
-                    var scaleX = this._DO_Props_._scaleX;
+                    var scaleX = this._scaleX;
                     if (scaleX < 0) {
                         scaleX = -scaleX;
                     }
@@ -1300,14 +1385,14 @@ var egret;
                  */
                 get: function () {
                     var h = 0;
-                    if (this._UIC_Props_._layoutHeightExplicitlySet) {
-                        h = this._UIC_Props_._height;
+                    if (this._layoutHeightExplicitlySet) {
+                        h = this._height;
                     }
-                    else if (this._DO_Props_._hasHeightSet) {
-                        h = this._DO_Props_._explicitHeight;
+                    else if (this._hasHeightSet) {
+                        h = this._explicitHeight;
                     }
                     else {
-                        h = this._UIC_Props_._measuredHeight;
+                        h = this._measuredHeight;
                     }
                     var scaleY = this.scaleY;
                     if (scaleY < 0) {

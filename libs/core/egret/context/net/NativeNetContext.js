@@ -1,31 +1,29 @@
-//////////////////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (c) 2014-2015, Egret Technology Inc.
-//  All rights reserved.
-//  Redistribution and use in source and binary forms, with or without
-//  modification, are permitted provided that the following conditions are met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above copyright
-//       notice, this list of conditions and the following disclaimer in the
-//       documentation and/or other materials provided with the distribution.
-//     * Neither the name of the Egret nor the
-//       names of its contributors may be used to endorse or promote products
-//       derived from this software without specific prior written permission.
-//
-//  THIS SOFTWARE IS PROVIDED BY EGRET AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
-//  OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-//  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-//  IN NO EVENT SHALL EGRET AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-//  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-//  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;LOSS OF USE, DATA,
-//  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-//  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-//  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-//  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-//////////////////////////////////////////////////////////////////////////////////////
+/**
+ * Copyright (c) 2014,Egret-Labs.org
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Egret-Labs.org nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY EGRET-LABS.ORG AND CONTRIBUTORS "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL EGRET-LABS.ORG AND CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 var egret;
 (function (egret) {
     /**
@@ -36,7 +34,6 @@ var egret;
         function NativeNetContext() {
             _super.call(this);
             this.urlData = {};
-            egret.Texture.createBitmapData = egret.Texture._createBitmapDataForNative;
             this.initVersion(new egret.VersionController());
         }
         var __egretProto__ = NativeNetContext.prototype;
@@ -94,7 +91,23 @@ var egret;
                 download();
             }
             else {
-                egret.__callAsync(onLoadComplete, this);
+                if (NativeNetContext.__use_asyn) {
+                    //异步读取
+                    readFileAsync();
+                }
+                else {
+                    //同步读取
+                    egret.__callAsync(onLoadComplete, this);
+                }
+            }
+            function readFileAsync() {
+                var promise = new egret.PromiseObject();
+                promise.onSuccessFunc = function (content) {
+                    self.saveVersion(url);
+                    loader.data = content;
+                    egret.Event.dispatchEvent(loader, egret.Event.COMPLETE);
+                };
+                egret_native.readFileAsync(url, promise);
             }
             function download() {
                 var promise = egret.PromiseObject.create();
@@ -105,29 +118,10 @@ var egret;
                 egret_native.download(url, url, promise);
             }
             function onLoadComplete() {
-                if (NativeNetContext.__use_asyn) {
-                    //异步读取
-                    readFileAsync();
-                }
-                else {
-                    //同步读取
-                    self.saveVersion(url);
-                    var content = egret_native.readFileSync(url);
-                    loader.data = content;
-                    egret.Event.dispatchEvent(loader, egret.Event.COMPLETE);
-                }
-            }
-            function readFileAsync() {
-                var promise = new egret.PromiseObject();
-                promise.onSuccessFunc = function (content) {
-                    self.saveVersion(url);
-                    loader.data = content;
-                    egret.Event.dispatchEvent(loader, egret.Event.COMPLETE);
-                };
-                promise.onErrorFunc = function () {
-                    egret.Event.dispatchEvent(loader, egret.IOErrorEvent.IO_ERROR);
-                };
-                egret_native.readFileAsync(url, promise);
+                self.saveVersion(url);
+                var content = egret_native.readFileSync(url);
+                loader.data = content;
+                egret.Event.dispatchEvent(loader, egret.Event.COMPLETE);
             }
         };
         __egretProto__.getHeaderString = function (request) {
@@ -165,10 +159,8 @@ var egret;
             }
             function onLoadComplete() {
                 self.saveVersion(url);
-                var nativeAudio = new egret.NativeAudio();
-                nativeAudio._setAudio(url);
                 var sound = new egret.Sound();
-                sound._setAudio(nativeAudio);
+                sound.path = url;
                 loader.data = sound;
                 egret.Event.dispatchEvent(loader, egret.Event.COMPLETE);
             }
@@ -187,38 +179,46 @@ var egret;
                 download();
             }
             else {
-                //todo
-                //if (NativeNetContext.__use_asyn) {
-                //    createBitmapData();
-                //}
-                //else {
-                egret.__callAsync(createBitmapData, this);
+                if (NativeNetContext.__use_asyn) {
+                    addTextureAsync();
+                }
+                else {
+                    egret.__callAsync(onLoadComplete, this);
+                }
             }
-            function createBitmapData() {
-                egret.Texture.createBitmapData(url, function (code, bitmapData) {
-                    if (code == 0) {
-                        onComplete(bitmapData);
-                    }
-                    else {
-                        egret.IOErrorEvent.dispatchIOErrorEvent(loader);
-                    }
-                });
-            }
-            function onComplete(bitmapData) {
+            function addTexture(bitmapData) {
                 self.saveVersion(url);
                 var texture = new egret.Texture();
                 texture._setBitmapData(bitmapData);
                 loader.data = texture;
-                console.log("onComplete:" + url);
                 egret.Event.dispatchEvent(loader, egret.Event.COMPLETE);
+            }
+            function addTextureAsync() {
+                var promise = new egret.PromiseObject();
+                promise.onSuccessFunc = function (bitmapData) {
+                    addTexture(bitmapData);
+                };
+                promise.onErrorFunc = function () {
+                    egret.IOErrorEvent.dispatchIOErrorEvent(loader);
+                };
+                egret_native.Texture.addTextureAsyn(url, promise);
             }
             function download() {
                 var promise = egret.PromiseObject.create();
-                promise.onSuccessFunc = createBitmapData;
+                promise.onSuccessFunc = onLoadComplete;
                 promise.onErrorFunc = function () {
                     egret.IOErrorEvent.dispatchIOErrorEvent(loader);
                 };
                 egret_native.download(url, url, promise);
+            }
+            function onLoadComplete() {
+                if (NativeNetContext.__use_asyn) {
+                    addTextureAsync();
+                }
+                else {
+                    var bitmapData = egret_native.Texture.addTexture(url);
+                    addTexture(bitmapData);
+                }
             }
         };
         /**
@@ -244,7 +244,7 @@ var egret;
             }
             return [];
         };
-        NativeNetContext.__use_asyn = egret_native.readFileAsync == null ? false : true;
+        NativeNetContext.__use_asyn = false;
         return NativeNetContext;
     })(egret.NetContext);
     egret.NativeNetContext = NativeNetContext;

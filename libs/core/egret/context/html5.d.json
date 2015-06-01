@@ -11,8 +11,6 @@
 		"renderer/webgl/WebGLShaderManager.js",
 		"net/HTML5NetContext.js",
 		"interactive/HTML5TouchContext.js",
-		"display/HTML5StageText.js",
-		"audio/Html5Audio.js",
-		"audio/WebAudio.js"
+		"display/HTML5StageText.js"
 	]
 }

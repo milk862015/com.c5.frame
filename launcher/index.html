@@ -23,18 +23,17 @@
             -khtml-user-select: none;
             -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
         }
-        body {
+       /* body {
             text-align: center;
             background: #000000;
             padding: 0;
             border: 0;
             margin: 0;
             height: 100%;
-        }
+        }*/
         html {
             -ms-touch-action: none;  Direct all pointer events to JavaScript code. 
             overflow: hidden;
-            height: 100%;
         }
         div,canvas {
             display:block;
@@ -42,14 +41,6 @@
             margin: 0 auto;
             padding: 0;
             border: 0;
-        }
-        #loading{
-            position: absolute;
-        }
-        #loadGif{
-            position: absolute;
-            top: 0px;
-            left:opx;
         }
         /*#gameDiv{
             display:block;
@@ -61,10 +52,47 @@
     </style>
 </head>
 <body style="padding:0; margin: 0; background: #000;">
-<div id='loading'>
-    <img id="loadGif" src="resource/loading.gif">
-</div>
-<script src="launcher/layout.js"></script>
+<div id='loading'></div>
+<script src="launcher/sonic.js"></script>
+<script>
+    var dw = document.documentElement.clientWidth
+    var dh = document.documentElement.clientHeght
+    var ee = 0
+    if(dw > dh){
+        ee = dh
+    }else{
+        ee = dw
+    }
+    var halfee = ee/2
+    var circle = new Sonic({
+
+    width: ee/4,
+    height: ee/4,
+    padding: ee/2-ee/16,
+
+    strokeColor: '#ffffff',
+
+    pointDistance: .01,
+    stepsPerFrame: 3,
+    trailLength: .7,
+
+    step: 'fader',
+
+    setup: function() {
+        this._.lineWidth = 5;
+    },
+
+    path: [
+        ['arc', halfee/8, halfee/8, halfee/8, 0, 360]
+    ]
+
+});
+
+circle.play();
+// circle.canvas.width = 500;
+// circle.canvas.height = 500;
+$('#loading').append(circle.canvas)
+</script>
 <div style="position:relative;" id="gameDiv"></div>
 <script>var document_class = "Main";</script><!--这部分内容在编译时会被替换，要修改文档类，请到工程目录下的egretProperties.json内编辑。-->
 <!-- <script src="bin-debug/lib/egret_file_list.js"></script>
@@ -73,17 +101,21 @@
 <script src="bin-debug/src/game_file_list.js"></script> -->
 
 <script>
-    InputManage.init();
-    InputManage.Show();
+    $(document).ready(function() {
+    $('.ball, .ball1').removeClass('stop');     
+        $('.trigger').click(function() {
+                $('.ball, .ball1').toggleClass('stop');
+        });
+    });
 
     var loadarr =["bin-debug/lib/egret_file_list.js","launcher/egret_require.js","launcher/egret_loader.js","bin-debug/src/game_file_list.js"]
     function startShow(){
-//        $('#loading').remove();
-//        $('#gameDiv').show();
-//
-//        egret_h5.preloadScript(egret_file_list, "libs/");
-//        egret_h5.preloadScript(game_file_list, "bin-debug/src/");
-//        egret_h5.startLoading();
+        $('#loading').remove();
+        $('#gameDiv').show();
+
+        egret_h5.preloadScript(egret_file_list, "libs/");
+        egret_h5.preloadScript(game_file_list, "bin-debug/src/");
+        egret_h5.startLoading();
     }
     // startShow();
     $('#gameDiv').hide()

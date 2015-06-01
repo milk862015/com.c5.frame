@@ -36,19 +36,19 @@ var LoadingUI = (function (_super) {
     var __egretProto__ = LoadingUI.prototype;
     __egretProto__.createView = function () {
         this._bg = new egret.Bitmap();
-        this._bg.texture = RES.getRes('loadBg_png');
+        this._bg.texture = RES.getRes('loading.loadbg_png');
         this._bg.x = Config.STAGE_WIDTH * 0.5 - this._bg.width * 0.5;
         this._bg.y = 450;
         this._baseW = this._bg.width;
         this._sp = new egret.Bitmap();
         this.addChild(this._sp);
-        this._sp.texture = RES.getRes('green_png');
+        this._sp.texture = RES.getRes('loading.green_png');
         this._sp.scale9Grid = new egret.Rectangle(11, 12, 4, 3);
         this._sp.x = this._bg.x + 2;
         this._sp.y = 450 + 3;
         this.addChild(this._bg);
         this._ball = new egret.Bitmap();
-        this._ball.texture = RES.getRes('ball_png');
+        this._ball.texture = RES.getRes('loading.ball_png');
         this._ball.x = this._bg.x - 13;
         this._baseX = this._ball.x;
         this._ball.y = 390;
@@ -77,4 +77,3 @@ var LoadingUI = (function (_super) {
     return LoadingUI;
 })(egret.Sprite);
 LoadingUI.prototype.__class__ = "LoadingUI";
-//# sourceMappingURL=LoadingUI.js.map

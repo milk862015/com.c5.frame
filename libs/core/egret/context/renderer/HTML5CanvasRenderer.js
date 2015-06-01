@@ -1,31 +1,29 @@
-//////////////////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (c) 2014-2015, Egret Technology Inc.
-//  All rights reserved.
-//  Redistribution and use in source and binary forms, with or without
-//  modification, are permitted provided that the following conditions are met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above copyright
-//       notice, this list of conditions and the following disclaimer in the
-//       documentation and/or other materials provided with the distribution.
-//     * Neither the name of the Egret nor the
-//       names of its contributors may be used to endorse or promote products
-//       derived from this software without specific prior written permission.
-//
-//  THIS SOFTWARE IS PROVIDED BY EGRET AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
-//  OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-//  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-//  IN NO EVENT SHALL EGRET AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-//  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-//  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;LOSS OF USE, DATA,
-//  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-//  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-//  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-//  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-//////////////////////////////////////////////////////////////////////////////////////
+/**
+ * Copyright (c) 2014,Egret-Labs.org
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Egret-Labs.org nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY EGRET-LABS.ORG AND CONTRIBUTORS "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL EGRET-LABS.ORG AND CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 var egret;
 (function (egret) {
     /**
@@ -40,8 +38,6 @@ var egret;
             if (useCacheCanvas === void 0) { useCacheCanvas = true; }
             _super.call(this);
             this.useCacheCanvas = useCacheCanvas;
-            egret.Texture.prototype.draw = egret.Texture.prototype._drawForCanvas;
-            egret.Texture.prototype.dispose = egret.Texture.prototype._disposeForCanvas;
             this.canvas = canvas || this.createCanvas();
             this.canvasContext = this.canvas.getContext("2d");
             if (useCacheCanvas) {
@@ -123,14 +119,44 @@ var egret;
             //            this.canvasContext.fillRect(x, y, w, h);
             this.canvasContext.clearRect(x, y, w, h);
         };
-        __egretProto__.drawImage = function (texture, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight, renderType) {
-            if (renderType === void 0) { renderType = undefined; }
+        __egretProto__.drawImage = function (texture, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight, repeat) {
+            if (repeat === void 0) { repeat = undefined; }
+            //            if (DEBUG && DEBUG.DRAW_IMAGE) {
+            //                DEBUG.checkDrawImage(texture, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight);
+            //            }
+            var image = texture._bitmapData;
             destX += this._transformTx;
             destY += this._transformTy;
             var beforeDraw = egret.getTimer();
-            texture.draw(this.drawCanvasContext, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight, renderType);
-            _super.prototype.drawImage.call(this, texture, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight, renderType);
+            if (repeat === undefined) {
+                this.drawCanvasContext.drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight);
+            }
+            else {
+                this.drawRepeatImage(texture, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight, repeat);
+            }
+            _super.prototype.drawImage.call(this, texture, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight, repeat);
             this.renderCost += egret.getTimer() - beforeDraw;
+        };
+        __egretProto__.drawRepeatImage = function (texture, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight, repeat) {
+            if (texture['pattern'] === undefined) {
+                var texture_scale_factor = egret.MainContext.instance.rendererContext._texture_scale_factor;
+                var image = texture._bitmapData;
+                var tempImage = image;
+                if (image.width != sourceWidth || image.height != sourceHeight || texture_scale_factor != 1) {
+                    var tempCanvas = document.createElement("canvas");
+                    tempCanvas.width = sourceWidth * texture_scale_factor;
+                    tempCanvas.height = sourceHeight * texture_scale_factor;
+                    tempCanvas.getContext("2d").drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, sourceWidth * texture_scale_factor, sourceHeight * texture_scale_factor);
+                    tempImage = tempCanvas;
+                }
+                var pat = this.drawCanvasContext.createPattern(tempImage, repeat);
+                texture['pattern'] = pat;
+            }
+            var pattern = texture['pattern'];
+            this.drawCanvasContext.fillStyle = pattern;
+            this.drawCanvasContext.translate(destX, destY);
+            this.drawCanvasContext.fillRect(0, 0, destWidth, destHeight);
+            this.drawCanvasContext.translate(-destX, -destY);
         };
         __egretProto__.setTransform = function (matrix) {
             //在没有旋转缩放斜切的情况下，先不进行矩阵偏移，等下次绘制的时候偏移
@@ -165,11 +191,11 @@ var egret;
         __egretProto__.setupFont = function (textField, style) {
             if (style === void 0) { style = null; }
             style = style || {};
-            var properties = textField._TF_Props_;
-            var italic = style.italic == null ? properties._italic : style.italic;
-            var bold = style.bold == null ? properties._bold : style.bold;
-            var size = style.size == null ? properties._size : style.size;
-            var fontFamily = style.fontFamily == null ? properties._fontFamily : style.fontFamily;
+            var properties = textField._properties;
+            var italic = style["italic"] == null ? properties._italic : style["italic"];
+            var bold = style["bold"] == null ? properties._bold : style["bold"];
+            var size = style["size"] == null ? properties._size : style["size"];
+            var fontFamily = style["fontFamily"] == null ? properties._fontFamily : style["fontFamily"];
             var ctx = this.drawCanvasContext;
             var font = italic ? "italic " : "normal ";
             font += bold ? "bold " : "normal ";
@@ -186,7 +212,7 @@ var egret;
             if (style === void 0) { style = null; }
             this.setupFont(textField, style);
             style = style || {};
-            var properties = textField._TF_Props_;
+            var properties = textField._properties;
             var textColor;
             if (style.textColor != null) {
                 textColor = egret.toColorString(style.textColor);
@@ -295,7 +321,7 @@ var egret_h5_graphics;
             this.canvasContext.closePath();
         }, this, [x, y, width, height]));
         this._fill();
-        this._checkRect(x, y, width, height);
+        this.checkRect(x, y, width, height);
     }
     egret_h5_graphics.drawRect = drawRect;
     function drawCircle(x, y, r) {
@@ -306,7 +332,7 @@ var egret_h5_graphics;
             this.canvasContext.closePath();
         }, this, [x, y, r]));
         this._fill();
-        this._checkRect(x - r, y - r, 2 * r, 2 * r);
+        this.checkRect(x - r, y - r, 2 * r, 2 * r);
     }
     egret_h5_graphics.drawCircle = drawCircle;
     function drawRoundRect(x, y, width, height, ellipseWidth, ellipseHeight) {
@@ -336,7 +362,7 @@ var egret_h5_graphics;
             this.canvasContext.closePath();
         }, this, [x, y, width, height, ellipseWidth, ellipseHeight]));
         this._fill();
-        this._checkRect(x, y, width, height);
+        this.checkRect(x, y, width, height);
     }
     egret_h5_graphics.drawRoundRect = drawRoundRect;
     function drawEllipse(x, y, width, height) {
@@ -357,7 +383,7 @@ var egret_h5_graphics;
             this.canvasContext.restore();
         }, this, [x, y, width, height]));
         this._fill();
-        this._checkRect(x, y, width, height);
+        this.checkRect(x, y, width, height);
     }
     egret_h5_graphics.drawEllipse = drawEllipse;
     function lineStyle(thickness, color, alpha, pixelHinting, scaleMode, caps, joints, miterLimit) {
@@ -392,10 +418,10 @@ var egret_h5_graphics;
             var canvasContext = this.canvasContext;
             canvasContext.lineTo(rendererContext._transformTx + x, rendererContext._transformTy + y);
         }, this, [x, y]));
-        this._checkPoint(this.lineX, this.lineY);
+        this.checkPoint(this.lineX, this.lineY);
         this.lineX = x;
         this.lineY = y;
-        this._checkPoint(x, y);
+        this.checkPoint(x, y);
     }
     egret_h5_graphics.lineTo = lineTo;
     function curveTo(controlX, controlY, anchorX, anchorY) {
@@ -404,11 +430,11 @@ var egret_h5_graphics;
             var canvasContext = this.canvasContext;
             canvasContext.quadraticCurveTo(rendererContext._transformTx + x, rendererContext._transformTy + y, rendererContext._transformTx + ax, rendererContext._transformTy + ay);
         }, this, [controlX, controlY, anchorX, anchorY]));
-        this._checkPoint(this.lineX, this.lineY);
+        this.checkPoint(this.lineX, this.lineY);
         this.lineX = anchorX;
         this.lineY = anchorY;
-        this._checkPoint(controlX, controlY);
-        this._checkPoint(anchorX, anchorY);
+        this.checkPoint(controlX, controlY);
+        this.checkPoint(anchorX, anchorY);
     }
     egret_h5_graphics.curveTo = curveTo;
     function moveTo(x, y) {
@@ -425,12 +451,12 @@ var egret_h5_graphics;
         this.lineY = 0;
         this.strokeStyleColor = null;
         this.fillStyleColor = null;
+        this._dirty = false;
         this._minX = 0;
         this._minY = 0;
         this._maxX = 0;
         this._maxY = 0;
         this._firstCheck = true;
-        this._dirty = true;
     }
     egret_h5_graphics.clear = clear;
     function createEndFillCommand() {
@@ -445,7 +471,6 @@ var egret_h5_graphics;
     function endFill() {
         if (this.fillStyleColor != null) {
             this._fill();
-            this.fillStyleColor = null;
         }
     }
     egret_h5_graphics.endFill = endFill;
@@ -453,6 +478,7 @@ var egret_h5_graphics;
         if (this.fillStyleColor) {
             this.createEndFillCommand();
             this._pushCommand(this.endFillCommand);
+            this.fillStyleColor = null;
         }
         if (this.strokeStyleColor) {
             this.createEndLineCommand();
