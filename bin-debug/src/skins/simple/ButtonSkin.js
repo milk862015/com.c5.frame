@@ -50,3 +50,4 @@ var skins;
         ButtonSkin.prototype.__class__ = "skins.simple.ButtonSkin";
     })(simple = skins.simple || (skins.simple = {}));
 })(skins || (skins = {}));
+//# sourceMappingURL=ButtonSkin.js.map

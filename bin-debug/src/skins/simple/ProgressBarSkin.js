@@ -52,3 +52,4 @@ var skins;
         ProgressBarSkin.prototype.__class__ = "skins.simple.ProgressBarSkin";
     })(simple = skins.simple || (skins.simple = {}));
 })(skins || (skins = {}));
+//# sourceMappingURL=ProgressBarSkin.js.map

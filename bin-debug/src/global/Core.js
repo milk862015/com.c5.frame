@@ -5,3 +5,4 @@ var Core = (function () {
     return Core;
 })();
 Core.prototype.__class__ = "Core";
+//# sourceMappingURL=Core.js.map

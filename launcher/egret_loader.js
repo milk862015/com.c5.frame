@@ -73,5 +73,5 @@ egret_h5.startGame = function () {
     else{
         throw new Error("找不到文档类！");
     }
-    egret.Profiler.getInstance().run();
+    //egret.Profiler.getInstance().run();
 };
