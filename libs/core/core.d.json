@@ -9,6 +9,8 @@
 		"egret/utils/RenderCommand.js",
 		"egret/events/Event.js",
 		"egret/events/HTTPStatusEvent.js",
+		"egret/events/SoundEvent.js",
+		"egret/events/FocusEvent.js",
 		"egret/events/IOErrorEvent.js",
 		"egret/events/TouchEvent.js",
 		"egret/events/TimerEvent.js",
@@ -37,10 +39,13 @@
 		"egret/filters/Filter.js",
 		"egret/filters/BlurFilter.js",
 		"egret/display/BlendMode.js",
+		"egret/display/DisplayObjectProperties.js",
+		"egret/display/DisplayObjectPrivateProperties.js",
 		"egret/display/DisplayObject.js",
 		"egret/display/DisplayObjectContainer.js",
 		"egret/display/StageScaleMode.js",
 		"egret/display/Stage.js",
+		"egret/display/ScrollViewProperties.js",
 		"egret/display/ScrollView.js",
 		"egret/display/BitmapFillMode.js",
 		"egret/display/Bitmap.js",
@@ -83,6 +88,7 @@
 		"egret/tween/Tween.js",
 		"egret/tween/Ease.js",
 		"egret/media/Sound.js",
-		"jslib/NumberUtils.js"
+		"jslib/NumberUtils.js",
+		"egret/context/PromiseObject.js"
 	]
 }
