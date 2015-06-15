@@ -69,6 +69,8 @@ class Main extends egret.DisplayObjectContainer{
             RES.removeEventListener(RES.ResourceEvent.GROUP_PROGRESS,this.onResourceProgress,this);
             this.createScene();
         }else if( event.groupName == "loadRes" ){
+            var loading = document.getElementById("loading");
+            loading.style.display = "none";
             //设置加载进度界面
             this.loadingView  = new LoadingUI(this.getTotalNeedLoad());
             this.stage.addChild(this.loadingView);
