@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>请修改标题</title>
+    <script src="sam.2.0.2.js"></script>
     <script src="launcher/share.js"></script>
     <script src="launcher/layout.js"></script>
     <meta name="viewport"
@@ -14,7 +15,7 @@
     <meta name="x5-fullscreen" content="true"/>
     <meta name="360-fullscreen" content="true"/>
 
-    <style> 
+    <style>
         body{
             -moz-user-select: none;
             -webkit-user-select: none;
@@ -45,6 +46,7 @@
         }
         #loading{
             position: absolute;
+            z-index: 100;
         }
         #loadImg{
             position: absolute;
@@ -53,9 +55,10 @@
     </style>
 </head>
 <body>
-<div id='loading'></div>
+<div id='loading'>
+    <img id="loadImg" src="resource/loading.gif">
+</div>
 <div style="position:relative;" id="gameDiv">
-    img id="loadImg" src="resource/loading.gif">
 </div>
 
 <script>var document_class = "Main";</script><!--这部分内容在编译时会被替换，要修改文档类，请到工程目录下的egretProperties.json内编辑。-->
@@ -66,7 +69,7 @@
     LayoutSys.Init();
     LayoutSys.Show();
     function startLoad(){
-        var loadArr =["bin-debug/lib/egret_file_list.js","launcher/egret_require.js","launcher/egret_loader.js","bin-debug/src/game_file_list.js"];
+        var loadArr =["launcher/egret_require.js","launcher/egret_loader.js","launcher/game-min.js"];
         // startShow();
         var gDiv = document.getElementById("gameDiv");
         gDiv.style.display = "none";
@@ -78,12 +81,12 @@
                     if (script.readyState == "loaded" ||
                             script.readyState == "complete"){
                         script.onreadystatechange = null;
-                        callback();
+                        setTimeout(callback,200);
                     }
                 };
             } else { //Others: Firefox, Safari, Chrome, and Opera
                 script.onload = function(){
-                    callback();
+                    setTimeout(callback,200);
                 };
             }
             script.src = url;
@@ -96,7 +99,11 @@
         var loadComplete = function(){//加载完成后的回调
             gDiv.style.display = "block";
             var start = function(){
-                egret_h5.startGame();
+                if(typeof egret_h5 != "undefined" && typeof egret_h5.hasOwnProperty("startGame") ){
+                    egret_h5.startGame();
+                }else{
+                    setTimeout(start,100);
+                }
             };
             setTimeout(start,100);
         };
@@ -105,11 +112,12 @@
             endLoad ++;
             if( endLoad >= len ){
                 loadComplete();
+            }else{
+                loadScript(loadArr[endLoad],callback);
             }
         };
-        for( var i=0;i<len;i++ ){
-            loadScript(loadArr[i],callback)
-        }
+
+        loadScript(loadArr[endLoad],callback)
     }
     startLoad();
 </script>

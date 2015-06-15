@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>怪物派对</title>
+    <script src="sam.2.0.2.js"></script>
     <script src="share.js"></script>
     <script src="layout.js"></script>
     <meta name="viewport"
@@ -16,7 +17,7 @@
     <base href="../"/>
 
     <style>
-    body, div {
+        body, div {
             -moz-user-select: none;
             -webkit-user-select: none;
             -ms-user-select: none;
@@ -40,6 +41,7 @@
         }
         #loading{
             position: absolute;
+            z-index: 100;
         }
         #loadImg{
             position: absolute;
@@ -80,12 +82,12 @@
                     if (script.readyState == "loaded" ||
                             script.readyState == "complete"){
                         script.onreadystatechange = null;
-                        callback();
+                        setTimeout(callback,200);
                     }
                 };
             } else { //Others: Firefox, Safari, Chrome, and Opera
                 script.onload = function(){
-                    callback();
+                    setTimeout(callback,200);
                 };
             }
             script.src = url;
@@ -98,9 +100,13 @@
         var loadComplete = function(){//加载完成后的回调
             gDiv.style.display = "block";
             var start = function(){
-                egret_h5.preloadScript(egret_file_list, "libs/");
-                egret_h5.preloadScript(game_file_list, "bin-debug/src/");
-                egret_h5.startLoading();
+                if(typeof egret_h5 != "undefined" && egret_h5.hasOwnProperty("startLoading") ){
+                    egret_h5.preloadScript(egret_file_list, "libs/");
+                    egret_h5.preloadScript(game_file_list, "bin-debug/src/");
+                    egret_h5.startLoading();
+                }else{
+                    setTimeout(start,100);
+                }
             };
             setTimeout(start,100);
         };
@@ -109,11 +115,12 @@
             endLoad ++;
             if( endLoad >= len ){
                 loadComplete();
+            }else{
+                loadScript(loadArr[endLoad],callback);
             }
         };
-        for( var i=0;i<len;i++ ){
-            loadScript(loadArr[i],callback)
-        }
+
+        loadScript(loadArr[endLoad],callback)
     }
     startLoad();
 </script>
