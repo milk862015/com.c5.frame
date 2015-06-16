@@ -1,7 +1,7 @@
 class GameResponse extends egret.EventDispatcher{
 	static instance:GameResponse;
 	public constructor(){
-		super()
+		super();
 		if( GameResponse.instance != null ){
 			throw new TypeError("GameResponse Singleton already constrocted")
 		}
@@ -38,13 +38,6 @@ class GameResponse extends egret.EventDispatcher{
 
 	public TimerPause():void{
 		this.sendEvent(GameEvent.TIME_PAUSE)
-	}
-
-	public AddScore(num:number,combo:number):void{
-		var ge:GameEvent = new GameEvent(GameEvent.SCORE);
-		ge.Num = num;
-		ge.Combo = combo;
-		this.dispatchEvent(ge);
 	}
 
 	public SendRunEnd():void{
