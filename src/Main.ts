@@ -63,7 +63,7 @@ class Main extends egret.DisplayObjectContainer{
      * preLoad资源组加载完成
      */
     private onResourceLoadComplete(event:RES.ResourceEvent):void {
-        if(event.groupName=="preLoad"){
+        if(event.groupName==this.loadArr[0]){
             this.stage.removeChild(this.loadingView);
             RES.removeEventListener(RES.ResourceEvent.GROUP_COMPLETE,this.onResourceLoadComplete,this);
             RES.removeEventListener(RES.ResourceEvent.GROUP_PROGRESS,this.onResourceProgress,this);
@@ -75,36 +75,15 @@ class Main extends egret.DisplayObjectContainer{
             this.loadingView  = new LoadingUI(this.getTotalNeedLoad());
             this.stage.addChild(this.loadingView);
 
-            if(SGame.IsShowLaunch){
-                this.loadArr.push('launch');
-                //RES.loadGroup("launch",2);
-            }
-            if(SGame.IsShowResult){
-                this.loadArr.push('result');
-                //RES.loadGroup("result",1);
-            }
-
             var len:number = this.loadArr.length;
             for( var i:number=0;i<len;i++ ){
                 RES.loadGroup(this.loadArr[i],i);
             }
-
-            //RES.loadGroup("feedback",3);
-            //RES.loadGroup("read",4);
-            //RES.loadGroup("fight",5);
-            //RES.loadGroup("preload",0);
         }
     }
 
     private getTotalNeedLoad():number{
-        //var arr:string[] = ["preload","feedback","read","fight"];
         var arr:string[] = this.loadArr;
-        if(SGame.IsShowLaunch){
-            arr.push("launch")
-        }
-        if(SGame.IsShowResult){
-            arr.push("result")
-        }
 
         var num:number=0;
         var len:number = arr.length;
@@ -122,10 +101,6 @@ class Main extends egret.DisplayObjectContainer{
         if( this.loadArr.indexOf(event.groupName) !=-1 ){
             this.loadingView.AddLoadComplete();
         }
-
-        //if(event.groupName=="preload" || event.groupName=="launch" || event.groupName=="result" ){
-        //this.loadingView.setProgress(event.itemsLoaded,event.itemsTotal);
-        //}
     }
 
     private gameLayer:egret.DisplayObjectContainer;
@@ -139,9 +114,6 @@ class Main extends egret.DisplayObjectContainer{
         //游戏场景层，游戏场景相关内容可以放在这里面。
         this.gameLayer = new egret.DisplayObjectContainer();
         this.addChild(this.gameLayer);
-        // var bitmap:egret.Bitmap = new egret.Bitmap();
-        // bitmap.texture = RES.getRes("bgImage");
-        // this.gameLayer.addChild(bitmap);
 
         //GUI的组件必须都在这个容器内部,UIStage会始终自动保持跟舞台一样大小。
         this.guiLayer = new egret.gui.UIStage();
