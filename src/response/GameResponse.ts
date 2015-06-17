@@ -43,4 +43,15 @@ class GameResponse extends egret.EventDispatcher{
 	public SendRunEnd():void{
 		this.sendEvent(GameEvent.GAME_RUN_END)	
 	}
+
+	public LoadProgress(cur:number,total:number):void{
+		var ge:GameEvent = new GameEvent(GameEvent.LOAD_PROGRESS);
+		ge.cur = cur;
+		ge.total = total;
+		this.dispatchEvent(ge);
+	}
+
+	public LoadComplete():void{
+		this.sendEvent(GameEvent.LOAD_COMPLETE);
+	}
 }

@@ -7,6 +7,11 @@ class GameEvent extends egret.Event{
 	public static SCORE:string = "game_even_score"; //计分
 	public static GAME_RUN_END:string = "game_run_end"; //战斗宠运行完毕的实践
 
+	public static LOAD_PROGRESS:string = "game_load_progress";
+	public static LOAD_COMPLETE:string = "game_load_complete";
+
+	public cur:number = 0;
+	public total:number = 0;
 	public constructor(type:string, bubbles:boolean=false, cancelable:boolean=false){
 		super(type,bubbles,cancelable);
 	}
