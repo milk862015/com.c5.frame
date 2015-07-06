@@ -16,6 +16,10 @@
 		{
 			"name": "game",
 			"path": "."
+		},
+		{
+			"name": "weixinapi",
+			"path": "libsrc/weixinapi"
 		}
 	],
 	"native": {
@@ -24,5 +28,5 @@
 			"release"
 		]
 	},
-	"egret_version": "1.7.3"
+	"egret_version": "2.0.1"
 }

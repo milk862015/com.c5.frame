@@ -122,7 +122,7 @@ class Main extends egret.DisplayObjectContainer{
         //特效层
         var eLayer:egret.DisplayObjectContainer = new egret.DisplayObjectContainer();
         this.addChild(eLayer);
-
+        WxManage.GetInstance().Init();
         GameManage.GetInstance().Init();
         FightConfig.init();//初始化配置数据
         console.log("game init");
