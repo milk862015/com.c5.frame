@@ -19,6 +19,16 @@ SGame.Lottery=function (){
 
 };
 
+SGame.ShowLoading = function(){
+    var loading = document.getElementById("loading");
+    loading.style.display = "block";
+};
+
+SGame.HideLoading = function(){
+    var loading = document.getElementById("loading");
+    loading.style.display = "none";
+};
+
 //check变量数据
 SGame.check = function(){
     if( typeof is_complete != "undefined" ){

@@ -36,18 +36,6 @@ class UIManage {
 		}
 		this.Close();
 		this.curKey = key;
-		//代优化
-		//switch(key){
-		//	case "FightSkin":
-		//		this.curShow = new FightSkin();
-		//		break;
-		//	case "LoginSkin":
-		//		this.curShow = new LoginSkin();
-		//		break;
-		//	case "ResultSkin":
-		//		this.curShow = new ResultSkin();
-		//		break;
-		//}
 
 		var classFactory:any = this.dic[key];
 		if( classFactory != null ){
@@ -65,6 +53,14 @@ class UIManage {
 			pa.removeElement(this.curShow);
 			this.curShow = null;
 		}
+	}
+
+	public ShowPopView(panel:egret.gui.Panel):void{
+		egret.gui.PopUpManager.addPopUp(panel);
+	}
+
+	public ClosePopView( panel:egret.gui.Panel ):void{
+		egret.gui.PopUpManager.removePopUp(panel);
 	}
 
 	public GetCurKey():string{

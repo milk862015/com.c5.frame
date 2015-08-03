@@ -19,6 +19,15 @@ class Func {
 
     }
 
+    // 0至value随机一个数
+    static Random(value:number):number{
+        var result:number = 0;
+        if( value > 0 ){
+            result = Math.floor(Math.random() * 10000)%value;
+        }
+        return result;
+    }
+
     //恢复原貌
     static clickReset(target:egret.DisplayObject,x:number,y:number):void{
         target.scaleX = 1;

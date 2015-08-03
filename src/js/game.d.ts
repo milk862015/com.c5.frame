@@ -5,4 +5,6 @@ declare class SGame{
 	public static IsShowLaunch:boolean;
 	public static IsShowResult:boolean;
 	public static NotShowCallBack( obj:any ):void;
+	public static ShowLoading():void;
+	public static HideLoading():void;
 }

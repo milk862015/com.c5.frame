@@ -30,8 +30,8 @@ class Main extends egret.DisplayObjectContainer{
     /**
      * 加载进度界面
      */
-    private loadingView:LoadingUI;
-    private loadArr:string[] = ["preLoad","ready","game"];//加载数据组
+    //private loadingView:LoadingUI;
+    private loadArr:string[] = ["launch"];//加载数据组
     public constructor() {
         super();
         this.addEventListener(egret.Event.ADDED_TO_STAGE,this.onAddToStage,this);
@@ -47,7 +47,6 @@ class Main extends egret.DisplayObjectContainer{
         //初始化Resource资源加载库
         RES.addEventListener(RES.ResourceEvent.CONFIG_COMPLETE,this.onConfigComplete,this);
         RES.loadConfig("resource/resource.json","resource/");
-
     }
 
     /**
@@ -63,44 +62,63 @@ class Main extends egret.DisplayObjectContainer{
      * preLoad资源组加载完成
      */
     private onResourceLoadComplete(event:RES.ResourceEvent):void {
-        if(event.groupName==this.loadArr[0]){
-            this.stage.removeChild(this.loadingView);
-            RES.removeEventListener(RES.ResourceEvent.GROUP_COMPLETE,this.onResourceLoadComplete,this);
-            RES.removeEventListener(RES.ResourceEvent.GROUP_PROGRESS,this.onResourceProgress,this);
-            this.createScene();
-        }else if( event.groupName == "loadRes" ){
+        if(event.groupName== "loadRes") {
+            //this.stage.removeChild(this.loadingView);
+            document.body.style.backgroundColor = "#28d1f6";
             var loading = document.getElementById("loading");
             loading.style.display = "none";
-            //设置加载进度界面
-            this.loadingView  = new LoadingUI(this.getTotalNeedLoad());
-            this.stage.addChild(this.loadingView);
 
-            var len:number = this.loadArr.length;
-            for( var i:number=0;i<len;i++ ){
-                RES.loadGroup(this.loadArr[i],i);
+            this.createScene();
+
+            RES.removeEventListener(RES.ResourceEvent.GROUP_COMPLETE, this.onResourceLoadComplete, this);
+            RES.removeEventListener(RES.ResourceEvent.GROUP_PROGRESS, this.onResourceProgress, this);
+
+            GameResponse.GetInstance().addEventListener(GameEvent.LOAD_COMPLETE,this.onLoadCompleteHandler,this);
+            LoadManage.GetInstance().Init();
+            LoadManage.GetInstance().StartLoad(this.loadArr,LoadViewSkin);
+            var view:LoadViewSkin = <LoadViewSkin>LoadManage.GetInstance().GetView();
+            if(view){
+                view.HideBg();
             }
         }
+        //else if( event.groupName == "loadRes" ){
+        //
+        //    //设置加载进度界面
+        //    //this.loadingView  = new LoadingUI(this.getTotalNeedLoad());
+        //    //this.stage.addChild(this.loadingView);
+        //
+        //    var len:number = this.loadArr.length;
+        //    for( var i:number=0;i<len;i++ ){
+        //        RES.loadGroup(this.loadArr[i],i);
+        //    }
+        //}
     }
 
-    private getTotalNeedLoad():number{
-        var arr:string[] = this.loadArr;
-
-        var num:number=0;
-        var len:number = arr.length;
-        for( var i=0;i<len;i++ ){
-            var rArr = RES.getGroupByName(arr[i]);
-            num = num + rArr.length;
-        }
-        return num;
+    private onLoadCompleteHandler( e:GameEvent ):void{
+        GameResponse.GetInstance().removeEventListener(GameEvent.LOAD_COMPLETE,this.onLoadCompleteHandler,this);
+        document.body.style.backgroundColor = "#000000";
+        GameResponse.GetInstance().Launch();
     }
+
+    //private getTotalNeedLoad():number{
+    //    var arr:string[] = this.loadArr;
+    //
+    //    var num:number=0;
+    //    var len:number = arr.length;
+    //    for( var i=0;i<len;i++ ){
+    //        var rArr = RES.getGroupByName(arr[i]);
+    //        num = num + rArr.length;
+    //    }
+    //    return num;
+    //}
 
     /**
      * preload资源组加载进度
      */
     private onResourceProgress(event:RES.ResourceEvent):void {
-        if( this.loadArr.indexOf(event.groupName) !=-1 ){
-            this.loadingView.AddLoadComplete();
-        }
+        //if( this.loadArr.indexOf(event.groupName) !=-1 ){
+        //    this.loadingView.AddLoadComplete();
+        //}
     }
 
     private gameLayer:egret.DisplayObjectContainer;
@@ -122,7 +140,7 @@ class Main extends egret.DisplayObjectContainer{
         //特效层
         var eLayer:egret.DisplayObjectContainer = new egret.DisplayObjectContainer();
         this.addChild(eLayer);
-        WxManage.GetInstance().Init();
+
         GameManage.GetInstance().Init();
         FightConfig.init();//初始化配置数据
         console.log("game init");
@@ -130,11 +148,7 @@ class Main extends egret.DisplayObjectContainer{
         Core.UILayer = this.guiLayer;
         Core.GameLayer = this.gameLayer;
         Core.EffectLayer = eLayer;
-        if( SGame.IsShowLaunch ){
-            GameResponse.GetInstance().Launch();
-        }else{
-            GameResponse.GetInstance().Start();
-        }
+
     }
 
     //private testResponse(e:GameEvent):void{
