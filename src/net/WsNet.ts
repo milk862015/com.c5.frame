@@ -29,6 +29,10 @@ class WsNet{
         this.socket.addEventListener(egret.IOErrorEvent.IO_ERROR,this.onSocketError,this);
     }
 
+    public Connect( path:string,port:number ):void{
+        this.socket.connect(path,port);
+    }
+
     private onSocketError( e:egret.IOErrorEvent ):void{
 
     }
