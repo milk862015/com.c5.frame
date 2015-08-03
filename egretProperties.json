@@ -20,6 +20,9 @@
 		{
 			"name": "weixinapi",
 			"path": "libsrc/weixinapi"
+		},
+		{
+		  "name": "socket"
 		}
 	],
 	"native": {
@@ -28,5 +31,5 @@
 			"release"
 		]
 	},
-	"egret_version": "2.0.1"
+	"egret_version": "2.0.3"
 }
