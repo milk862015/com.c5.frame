@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<e:Skin width="640" height="1008" xmlns:e="http://ns.egret-labs.org/egret" xmlns:w="http://ns.egret-labs.org/wing">
+	<w:HostComponent name="egret.gui.Panel"/>
+	<w:Declarations/>
+	<e:states>
+		<e:State name="normal"/>
+		<e:State name="disabled"/>
+	</e:states>
+	<e:UIAsset source="load_logo_png" x="186" y="134"/>
+	<e:UIAsset source="load_md_png" x="0" y="867"/>
+	<e:UIAsset id="loadProgress" source="load_progress_png" x="155" y="257" width="327" scale9Grid="11,12,5,3"/>
+	<e:UIAsset id="load_movie" source="load_movie_png" y="253" x="104" alpha="0.1"/>
+	<e:UIAsset source="load_bg_png" y="252" x="152"/>
+	<e:Label id="loadTxt" text="80%" x="156" y="300" textColor="0x00A1E9" width="329" textAlign="center" size="32" height="40"/>
+</e:Skin>

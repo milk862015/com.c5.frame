@@ -1,7 +1,7 @@
-class LoginSkin extends egret.gui.Panel{
+class LaunchSkin extends egret.gui.Panel{
 	public constructor(){
 		super();
-		this.skinName = "skins.ui.LoginSkin";
+		this.skinName = "skins.ui.LaunchSkin";
 		this.addEventListener(egret.Event.ADDED_TO_STAGE,this.onAddToStage,this);
 	}
 
