@@ -3,6 +3,7 @@ class FightScene extends egret.Sprite{
 
 	public constructor(){
 		super();
+		egret.Shape
 		if(FightScene.instance != null){
 			throw new TypeError("FightScene Singleton already constructed")
 		}

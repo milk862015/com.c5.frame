@@ -1,8 +1,7 @@
 class UIManage {
 	static instance:UIManage;
-	private dic:Object;
 	private curShow:egret.gui.Panel;
-	private curKey:string;
+	private curClass:any;
 	public constructor(){
 		if( UIManage.instance != null ){
 			throw new TypeError("UIManage Singleton already constructed")
@@ -12,10 +11,6 @@ class UIManage {
 	}
 
 	private initialize():void{
-		this.dic = {};
-		this.dic[UIKey.LoginSkin] = LoginSkin;
-		this.dic[UIKey.FightSkin] = FightSkin;
-		this.dic[UIKey.ResultSkin] = ResultSkin;
 	}
 
 	static GetInstance():UIManage{
@@ -30,14 +25,13 @@ class UIManage {
 		return this.curShow
 	}
 
-	public Show(key:string):void{
-		if(this.curKey == key){
+	public Show(classFactory:any):void{
+		if(this.curClass == classFactory){
 			return
 		}
 		this.Close();
-		this.curKey = key;
+		this.curClass = classFactory;
 
-		var classFactory:any = this.dic[key];
 		if( classFactory != null ){
 			this.curShow = new classFactory()
 		}
@@ -55,15 +49,15 @@ class UIManage {
 		}
 	}
 
-	public ShowPopView(panel:egret.gui.Panel):void{
-		egret.gui.PopUpManager.addPopUp(panel);
+	public ShowPopView(classFactory:any):void{
+		egret.gui.PopUpManager.addPopUp(new classFactory());
 	}
 
-	public ClosePopView( panel:egret.gui.Panel ):void{
-		egret.gui.PopUpManager.removePopUp(panel);
+	public ClosePopView( target:egret.gui.UIComponent ):void{
+		egret.gui.PopUpManager.removePopUp(target);
 	}
 
-	public GetCurKey():string{
-		return this.curKey;
+	public GetCurClass():any{
+		return this.curClass;
 	}
 }
