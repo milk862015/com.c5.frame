@@ -49,11 +49,32 @@ class UIManage {
 		}
 	}
 
-	public ShowPopView(classFactory:any):void{
-		egret.gui.PopUpManager.addPopUp(new classFactory());
+	public ShowPopView(classFactory:any,effect?:boolean):void{
+		if( effect === void 0 ){effect= true}
+
+		var target:any = new classFactory();
+		if( effect ){
+			target["scaleX"] = 0;
+			target["scaleY"] = 0;
+			egret.Tween.get(target).to({scaleX:1,scaleY:1},300);
+		}
+		egret.gui.PopUpManager.addPopUp(target,true,true);
+
+		//…Ë÷√µØ¥∞µƒƒ£Ã¨’⁄’÷
+		egret.gui.PopUpManager.modalColor = 0x000000;
+		egret.gui.PopUpManager.modalAlpha = 0.8;
 	}
 
-	public ClosePopView( target:egret.gui.UIComponent ):void{
+	public ClosePopView( target:egret.gui.UIComponent,effect?:boolean ):void{
+		if( effect === void 0 ){effect= true}
+		if( effect ){
+			egret.Tween.get(target).to({scaleX:0,scaleY:0},300).call(this.removeTarget,this,[target]);
+		}else{
+			this.removeTarget(target);
+		}
+	}
+
+	private removeTarget( target:egret.gui.UIComponent ):void{
 		egret.gui.PopUpManager.removePopUp(target);
 	}
 
